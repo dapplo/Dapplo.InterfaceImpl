@@ -69,34 +69,30 @@ namespace Dapplo.InterfaceImpl
 					var setterBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name, SetGetMethodAttributes, typeof (void), new[] {propertyInfo.PropertyType});
 					var ilSetter = setterBuilder.GetILGenerator();
 
-					// Load the instance of the class (this) on the stack
-					ilSetter.Emit(OpCodes.Ldarg_0);
-					// Get the interceptor value of this._interceptor
-					ilSetter.Emit(OpCodes.Ldfld, interceptorField);
+					// Local SetInfo variable
+					var setInfo = ilSetter.DeclareLocal(typeof(SetInfo));
 
 					// Create new SetInfo class for the argument which are passed to the IInterceptor
-					// Used in the Set() call
 					ilSetter.Emit(OpCodes.Newobj, SetInfoConstructor);
+					// Store it in the local setInfo variable
+					ilSetter.Emit(OpCodes.Stloc, setInfo);
 
-					// Used in the GetSetInfo.PropertyType = assignment
-					ilSetter.Emit(OpCodes.Dup);
-
-					// Used in the GetSetInfo.PropertyName = assignment
-					ilSetter.Emit(OpCodes.Dup);
-
-					// Used in the SetInfo.NewValue = assignment
-					ilSetter.Emit(OpCodes.Dup);
-
+					// Get the setInfo local variable value
+					ilSetter.Emit(OpCodes.Ldloc, setInfo);
 					// Load the argument with the value on the stack
 					ilSetter.Emit(OpCodes.Ldarg_1);
 					// Set the value to the NewValue property of the SetInfo (call set_NewValue)
 					ilSetter.Emit(OpCodes.Callvirt, SetInfoNewValue);
 
+					// Get the setInfo local variable value
+					ilSetter.Emit(OpCodes.Ldloc, setInfo);
 					// Load the name of the property on the stack
 					ilSetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
 					// Set the value to the PropertyName property of the SetInfo (call set_PropertyName)
 					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
 
+					// Get the setInfo local variable value
+					ilSetter.Emit(OpCodes.Ldloc, setInfo);
 					// Load the type of the property on the stack
 					ilSetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
 					// Convert the RuntimeTypeHandle to a type
@@ -104,6 +100,12 @@ namespace Dapplo.InterfaceImpl
 					// Set the value to the PropertyType property of the SetInfo (call set_PropertyType)
 					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
 
+					// Load the instance of the class (this) on the stack
+					ilSetter.Emit(OpCodes.Ldarg_0);
+					// Get the interceptor value of this._interceptor
+					ilSetter.Emit(OpCodes.Ldfld, interceptorField);
+					// Get the setInfo local variable value
+					ilSetter.Emit(OpCodes.Ldloc, setInfo);
 					// Call the "SetMethod" method
 					ilSetter.Emit(OpCodes.Callvirt, InterceptorSet);
 
@@ -118,7 +120,7 @@ namespace Dapplo.InterfaceImpl
 					var getterBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, SetGetMethodAttributes, propertyInfo.PropertyType, Type.EmptyTypes);
 					var ilGetter = getterBuilder.GetILGenerator();
 
-					// Local SetInfo variable
+					// Local GetInfo variable
 					var getInfo = ilGetter.DeclareLocal(typeof(GetInfo));
 
 					// Create new GetInfo class for the argument which are passed to the IInterceptor
