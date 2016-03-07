@@ -35,19 +35,19 @@ namespace Dapplo.InterfaceImpl
 		private static readonly LogSource Log = new LogSource();
 		private readonly IDictionary<string, object> _values = new Dictionary<string, object>();
 
-		public void Get(GetInfo getInfo)
+		public object Get(GetInfo getInfo)
 		{
 			Log.Debug().WriteLine("Get {0}", getInfo.PropertyName);
 
 			if (_values.ContainsKey(getInfo.PropertyName))
 			{
-				getInfo.Value = _values[getInfo.PropertyName];
+				return _values[getInfo.PropertyName];
 			}
-
-			if (getInfo.PropertyType.IsValueType)
+			else if (getInfo.PropertyType.IsValueType)
 			{
-				getInfo.Value = Activator.CreateInstance(getInfo.PropertyType);
+				return Activator.CreateInstance(getInfo.PropertyType);
 			}
+			return null;
 		}
 
 		public void Set(SetInfo setInfo)
@@ -64,40 +64,11 @@ namespace Dapplo.InterfaceImpl
 			}
 		}
 
-		public object GetMethod(string propertyName, Type propertyType)
-		{
-			Log.Debug().WriteLine("Get {0}", propertyName);
-
-			if (_values.ContainsKey(propertyName))
-			{
-				return _values[propertyName];
-			}
-			if (propertyType.IsValueType)
-			{
-				return Activator.CreateInstance(propertyType);
-			}
-			return null;
-		}
-
 		public object Invoke(string methodName, params object[] parameters)
 		{
 			Debug.WriteLine("{0}({1})", methodName, string.Join(",", parameters));
 			//throw new Exception("Blub");
 			return "ThisIsIgnored";
-		}
-
-		public void SetMethod(string propertyName, Type propertyType, object newValue)
-		{
-			Log.Debug().WriteLine("Set {0} => {1}", propertyName, newValue);
-
-			if (_values.ContainsKey(propertyName))
-			{
-				_values[propertyName] = newValue;
-			}
-			else
-			{
-				_values.Add(propertyName, newValue);
-			}
 		}
 	}
 }

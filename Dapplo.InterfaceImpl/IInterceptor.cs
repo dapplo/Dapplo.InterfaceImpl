@@ -31,7 +31,8 @@ namespace Dapplo.InterfaceImpl
 		///     The Get method should set the getInfo.Value for the return value
 		/// </summary>
 		/// <param name="getInfo"></param>
-		void Get(GetInfo getInfo);
+		/// <returns>get value</returns>
+		object Get(GetInfo getInfo);
 
 		/// <summary>
 		///     This is called when a property set is used on the intercepted class.

@@ -21,7 +21,10 @@
 
 #region using
 
+using Dapplo.LogFacade;
 using System;
+using System.Diagnostics;
+using System.Diagnostics.SymbolStore;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -32,14 +35,13 @@ namespace Dapplo.InterfaceImpl
 {
 	public class Emitter
 	{
-		private const MethodAttributes SetgetMethodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.Virtual | MethodAttributes.Final;
-		private const MethodAttributes MethodAttributes = System.Reflection.MethodAttributes.Public | System.Reflection.MethodAttributes.Virtual | System.Reflection.MethodAttributes.Final;
+		private static readonly LogSource Log = new LogSource();
+		private static readonly MethodAttributes SetGetMethodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.Virtual | MethodAttributes.Final;
 		private static readonly ConstructorInfo SetInfoConstructor = typeof(SetInfo).GetConstructor(Type.EmptyTypes);
-		private static readonly MethodInfo GetSetInfoPropertyName = typeof (GetSetInfo).GetMethod("set_PropertyName");
-		private static readonly MethodInfo GetSetInfoPropertyType = typeof(GetSetInfo).GetMethod("set_PropertyType");
-		private static readonly MethodInfo SetInfoNewValue = typeof(SetInfo).GetMethod("set_NewValue");
-		private static readonly MethodInfo GetInfoValue = typeof(GetInfo).GetMethod("get_Value");
-		private static readonly MethodInfo GetInterceptor = typeof(IIntercepted).GetMethod("get_Interceptor");
+		private static readonly MethodInfo GetSetInfoPropertyName = typeof (GetSetInfo).GetProperty("PropertyName").GetSetMethod();
+		private static readonly MethodInfo GetSetInfoPropertyType = typeof(GetSetInfo).GetProperty("PropertyType").GetSetMethod();
+		private static readonly MethodInfo SetInfoNewValue = typeof(SetInfo).GetProperty("NewValue").GetSetMethod();
+		private static readonly MethodInfo GetInfoValue = typeof(GetInfo).GetProperty("Value").GetGetMethod();
 		private static readonly MethodInfo InterceptorGet = typeof(IInterceptor).GetMethod("Get");
 		private static readonly MethodInfo InterceptorSet = typeof(IInterceptor).GetMethod("Set");
 		private static readonly ConstructorInfo GetInfoConstructor = typeof(GetInfo).GetConstructor(Type.EmptyTypes);
@@ -49,11 +51,22 @@ namespace Dapplo.InterfaceImpl
 			string dllName = $"{assemblyNameString}.dll";
 			var assemblyName = new AssemblyName(assemblyNameString);
 			var appDomain = AppDomain.CurrentDomain;
-			var assemblyBuilder = appDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave);
-			var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, dllName, true);
+			var assemblyBuilder = appDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave, AppDomain.CurrentDomain.BaseDirectory);
+			var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, dllName, false);
+
+#if DEBUG
+			var debuggableAttributeConstructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
+			var customAttributeBuilder = new CustomAttributeBuilder(debuggableAttributeConstructor, new object[] {
+				DebuggableAttribute.DebuggingModes.DisableOptimizations
+				|
+				DebuggableAttribute.DebuggingModes.Default
+			});
+			assemblyBuilder.SetCustomAttribute(customAttributeBuilder);
+#endif
+
 
 			// Create the type, and let it implement our interface
-			var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public | TypeAttributes.Class, typeof (object), new[] {interfaceType, typeof(IIntercepted)});
+			var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed, typeof (object), new[] {interfaceType, typeof(IIntercepted)});
 
 			var interceptorField = BuildProperty(typeBuilder, "Interceptor", typeof (IInterceptor));
 
@@ -61,184 +74,131 @@ namespace Dapplo.InterfaceImpl
 
 			foreach (var propertyInfo in interfaceType.GetProperties())
 			{
+				if (!propertyInfo.CanRead && !propertyInfo.CanWrite)
+				{
+					continue;
+				}
+				var propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Name, PropertyAttributes.HasDefault, propertyInfo.PropertyType, null);
+
 				if (propertyInfo.CanWrite)
 				{
-					var setterBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name, SetgetMethodAttributes, typeof (void), new[] {propertyInfo.PropertyType});
+					var setterBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name, SetGetMethodAttributes, typeof (void), new[] {propertyInfo.PropertyType});
 					var ilSetter = setterBuilder.GetILGenerator();
 
-					// Local SetInfo variable
-					var setInfo = ilSetter.DeclareLocal(typeof(SetInfo));
+					// Load the instance of the class (this) on the stack
+					ilSetter.Emit(OpCodes.Ldarg_0);
+					// Get the interceptor value of this._interceptor
+					ilSetter.Emit(OpCodes.Ldfld, interceptorField);
 
 					// Create new SetInfo class for the argument which are passed to the IInterceptor
+					// Used in the Set() call
 					ilSetter.Emit(OpCodes.Newobj, SetInfoConstructor);
-					// Store it in the local setInfo variable
-					ilSetter.Emit(OpCodes.Stloc, setInfo);
 
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
+					// Used in the GetSetInfo.PropertyType = assignment
+					ilSetter.Emit(OpCodes.Dup);
+
+					// Used in the GetSetInfo.PropertyName = assignment
+					ilSetter.Emit(OpCodes.Dup);
+
+					// Used in the SetInfo.NewValue = assignment
+					ilSetter.Emit(OpCodes.Dup);
+
+					// Load the argument with the value on the stack
+					ilSetter.Emit(OpCodes.Ldarg_1);
+					// Set the value to the NewValue property of the SetInfo (call set_NewValue)
+					ilSetter.Emit(OpCodes.Callvirt, SetInfoNewValue);
+
 					// Load the name of the property on the stack
 					ilSetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
 					// Set the value to the PropertyName property of the SetInfo (call set_PropertyName)
 					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
 
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
 					// Load the name of the property on the stack
 					ilSetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
 					// Set the value to the PropertyType property of the SetInfo (call set_PropertyType)
 					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
 
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
-					// Load the value on the stack
-					ilSetter.Emit(OpCodes.Ldarg_1);
-					// Set the value to the NewValue property of the SetInfo (call set_NewValue)
-					ilSetter.Emit(OpCodes.Callvirt, SetInfoNewValue);
-
-					// Load the instance of the class (this) on the stack, for later
-					ilSetter.Emit(OpCodes.Ldarg_0);
-
-					// Load the instance of the class (this) on the stack
-					ilSetter.Emit(OpCodes.Ldarg_0);
-					// Get the interceptor value
-					ilSetter.Emit(OpCodes.Ldfld, interceptorField);
-
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
 					// Call the "SetMethod" method
 					ilSetter.Emit(OpCodes.Callvirt, InterceptorSet);
-					// Return
+
+					// return
 					ilSetter.Emit(OpCodes.Ret);
+
+					propertyBuilder.SetSetMethod(setterBuilder);
 				}
 
 				if (propertyInfo.CanRead)
 				{
-					var getterBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, SetgetMethodAttributes, propertyInfo.PropertyType, Type.EmptyTypes);
+					var getterBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, SetGetMethodAttributes, propertyInfo.PropertyType, Type.EmptyTypes);
 					var ilGetter = getterBuilder.GetILGenerator();
 
-					// Local GetInfo variable
-					var getInfo = ilGetter.DeclareLocal(typeof(GetInfo));
+					// Load the instance of the class (this) on the stack, for the InterceptorGet call later
+					ilGetter.Emit(OpCodes.Ldarg_0);
+					// Get the interceptor value from this._interceptor
+					ilGetter.Emit(OpCodes.Ldfld, interceptorField);
 
 					// Create new GetInfo class for the argument which are passed to the IInterceptor
+					// Used in the Get() call
 					ilGetter.Emit(OpCodes.Newobj, GetInfoConstructor);
-					// Store it in the local getInfo variable
-					ilGetter.Emit(OpCodes.Stloc, getInfo);
+	
+					// Used in the GetSetInfo.PropertyType = assignment
+					ilGetter.Emit(OpCodes.Dup);
 
-					// Get the getInfo local variable value
-					ilGetter.Emit(OpCodes.Ldloc, getInfo);
+					// Used in the GetSetInfo.PropertyName = assignment
+					ilGetter.Emit(OpCodes.Dup);
+
 					// Load the name of the property on the stack
 					ilGetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
-					// Set the value to the PropertyName property of the SetInfo (call set_PropertyName)
+					// Set the value to the PropertyName property of the GetSetInfo (call set_PropertyName)
 					ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
 
-					// Get the getInfo local variable value
-					ilGetter.Emit(OpCodes.Ldloc, getInfo);
 					// Load the name of the property on the stack
 					ilGetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
-					// Set the value to the PropertyType property of the GetInfo (call set_PropertyType)
+					// Set the value to the PropertyType property of the GetSetInfo (call set_PropertyType)
 					ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
 
-					// Load the instance of the class (this) on the stack, for later
-					ilGetter.Emit(OpCodes.Ldarg_0);
-
-					// Load the instance of the class (this) on the stack
-					ilGetter.Emit(OpCodes.Ldarg_0);
-					// Get the interceptor value
-					ilGetter.Emit(OpCodes.Callvirt, GetInterceptor);
-
-					// Call the "SetMethod" method
+					// Call the Get() method
 					ilGetter.Emit(OpCodes.Callvirt, InterceptorGet);
 
-					// Get the getInfo local variable value
-					ilGetter.Emit(OpCodes.Ldloc, getInfo);
-					// Get the value of the GetInfo (call get_Value)
-					ilGetter.Emit(OpCodes.Callvirt, GetInfoValue);
+					ilGetter.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
 
-					// Return
+					// Return the object on the stack, left by the InterceptorGet call
 					ilGetter.Emit(OpCodes.Ret);
+
+					propertyBuilder.SetGetMethod(getterBuilder);
 				}
 			}
 
-			foreach (var methodInfo in interfaceType.GetMethods())
-			{
-				if (methodInfo.Name.StartsWith("get_") || methodInfo.Name.StartsWith("set_"))
-				{
-					continue;
-				}
-				var parameterTypes = (
-					from parameterInfo in methodInfo.GetParameters()
-					select parameterInfo.ParameterType).ToArray();
-				var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes, methodInfo.ReturnType, parameterTypes);
-				var ilMethod = methodBuilder.GetILGenerator();
-
-				var local = ilMethod.DeclareLocal(typeof (object[]));
-				// Store "this" at the stack
-				ilMethod.Emit(OpCodes.Ldarg_0);
-				// Check the parameters this method has
-				var argumentCount = methodInfo.GetParameters().Count();
-				// Place int32 with the array size on the stack, used up by the Newarr
-				ilMethod.Emit(OpCodes.Ldc_I4, argumentCount);
-				// new object[arraySize] on the stack
-				ilMethod.Emit(OpCodes.Newarr, typeof (object));
-
-				// local = array
-				ilMethod.Emit(OpCodes.Stloc, local);
-				// Assign all arguments to the array
-				for (var i = 0; i < argumentCount; i++)
-				{
-					// array[i] = arguments[i]
-					ilMethod.Emit(OpCodes.Ldloc, local);
-					ilMethod.Emit(OpCodes.Ldc_I4, i);
-					ilMethod.Emit(OpCodes.Ldarg, i + 1);
-					ilMethod.Emit(OpCodes.Stelem_Ref);
-				}
-
-				// Place proxyField on the stack
-				//ilMethod.Emit(OpCodes.Ldfld, interceptorField);
-				// Place method name on the stack
-				ilMethod.Emit(OpCodes.Ldstr, methodInfo.Name);
-				// Place array on the stack
-				ilMethod.Emit(OpCodes.Ldloc, local);
-
-				ilMethod.Emit(OpCodes.Callvirt, invokeMethod);
-				if (methodInfo.ReturnType == typeof (void))
-				{
-					// If the method should not return a value, we remove this from the stack
-					ilMethod.Emit(OpCodes.Pop);
-				}
-				ilMethod.Emit(OpCodes.Ret);
-			}
 			// Example for making a exe, for a methodBuilder which creates a static main
 			//assemblyBuilder.SetEntryPoint(methodBuilder,PEFileKinds.Exe);
-			//assemblyBuilder.Save(dllName);
-			return typeBuilder.CreateType();
+			var returnType = typeBuilder.CreateType();
+			//Log.Debug().WriteLine("Wrote {0} to {1}", dllName, AppDomain.CurrentDomain.BaseDirectory);
+			assemblyBuilder.Save(dllName, PortableExecutableKinds.ILOnly, ImageFileMachine.AMD64);
+			return returnType;
 		}
 
 		private static FieldBuilder BuildProperty(TypeBuilder typeBuilder, string name, Type type)
 		{
-			var field = typeBuilder.DefineField("m" + name, type, FieldAttributes.Private);
-			var propertyBuilder = typeBuilder.DefineProperty(name, PropertyAttributes.None, type, null);
+			Log.Debug().WriteLine("Generating property {0} with type {1}", name, type.FullName);
 
-			const MethodAttributes getSetAttr = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.Virtual;
+			var backingField = typeBuilder.DefineField("_" + name.ToLowerInvariant(), type, FieldAttributes.Private | FieldAttributes.HasDefault);
+			var propertyBuilder = typeBuilder.DefineProperty(name, PropertyAttributes.HasDefault, type, null);
 
-			var getter = typeBuilder.DefineMethod("get_" + name, getSetAttr, type, Type.EmptyTypes);
-
+			var getter = typeBuilder.DefineMethod("get_" + name, SetGetMethodAttributes, type, Type.EmptyTypes);
 			var getIl = getter.GetILGenerator();
 			getIl.Emit(OpCodes.Ldarg_0);
-			getIl.Emit(OpCodes.Ldfld, field);
+			getIl.Emit(OpCodes.Ldfld, backingField);
 			getIl.Emit(OpCodes.Ret);
+			propertyBuilder.SetGetMethod(getter);
 
-			var setter = typeBuilder.DefineMethod("set_" + name, getSetAttr, null, new[] { type });
-
+			var setter = typeBuilder.DefineMethod("set_" + name, SetGetMethodAttributes, null, new[] { type });
 			var setIl = setter.GetILGenerator();
 			setIl.Emit(OpCodes.Ldarg_0);
 			setIl.Emit(OpCodes.Ldarg_1);
-			setIl.Emit(OpCodes.Stfld, field);
+			setIl.Emit(OpCodes.Stfld, backingField);
 			setIl.Emit(OpCodes.Ret);
-
-			propertyBuilder.SetGetMethod(getter);
 			propertyBuilder.SetSetMethod(setter);
-			return field;
+			return backingField;
 		}
 	}
 }
