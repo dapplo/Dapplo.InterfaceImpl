@@ -35,19 +35,18 @@ namespace Dapplo.InterfaceImpl
 		private static readonly LogSource Log = new LogSource();
 		private readonly IDictionary<string, object> _values = new Dictionary<string, object>();
 
-		public object Get(GetInfo getInfo)
+		public void Get(GetInfo getInfo)
 		{
 			Log.Debug().WriteLine("Get {0}", getInfo.PropertyName);
 
 			if (_values.ContainsKey(getInfo.PropertyName))
 			{
-				return _values[getInfo.PropertyName];
+				getInfo.Value = _values[getInfo.PropertyName];
 			}
-			else if (getInfo.PropertyType.IsValueType)
+			if (getInfo.PropertyType.IsValueType)
 			{
-				return Activator.CreateInstance(getInfo.PropertyType);
+				getInfo.Value = Activator.CreateInstance(getInfo.PropertyType);
 			}
-			return null;
 		}
 
 		public void Set(SetInfo setInfo)

@@ -23,9 +23,6 @@
 
 using Dapplo.LogFacade;
 using System;
-using System.Diagnostics;
-using System.Diagnostics.SymbolStore;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -54,23 +51,10 @@ namespace Dapplo.InterfaceImpl
 			var assemblyBuilder = appDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave, AppDomain.CurrentDomain.BaseDirectory);
 			var moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, dllName, false);
 
-#if DEBUG
-			var debuggableAttributeConstructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-			var customAttributeBuilder = new CustomAttributeBuilder(debuggableAttributeConstructor, new object[] {
-				DebuggableAttribute.DebuggingModes.DisableOptimizations
-				|
-				DebuggableAttribute.DebuggingModes.Default
-			});
-			assemblyBuilder.SetCustomAttribute(customAttributeBuilder);
-#endif
-
-
 			// Create the type, and let it implement our interface
 			var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.Sealed, typeof (object), new[] {interfaceType, typeof(IIntercepted)});
 
 			var interceptorField = BuildProperty(typeBuilder, "Interceptor", typeof (IInterceptor));
-
-			var invokeMethod = typeof (ProxyInvoker).GetMethod("Invoke");
 
 			foreach (var propertyInfo in interfaceType.GetProperties())
 			{
@@ -113,8 +97,10 @@ namespace Dapplo.InterfaceImpl
 					// Set the value to the PropertyName property of the SetInfo (call set_PropertyName)
 					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
 
-					// Load the name of the property on the stack
+					// Load the type of the property on the stack
 					ilSetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
+					// Convert the RuntimeTypeHandle to a type
+					ilSetter.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new[] { typeof(RuntimeTypeHandle) }));
 					// Set the value to the PropertyType property of the SetInfo (call set_PropertyType)
 					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
 
@@ -132,34 +118,45 @@ namespace Dapplo.InterfaceImpl
 					var getterBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, SetGetMethodAttributes, propertyInfo.PropertyType, Type.EmptyTypes);
 					var ilGetter = getterBuilder.GetILGenerator();
 
-					// Load the instance of the class (this) on the stack, for the InterceptorGet call later
-					ilGetter.Emit(OpCodes.Ldarg_0);
-					// Get the interceptor value from this._interceptor
-					ilGetter.Emit(OpCodes.Ldfld, interceptorField);
+					// Local SetInfo variable
+					var getInfo = ilGetter.DeclareLocal(typeof(GetInfo));
 
 					// Create new GetInfo class for the argument which are passed to the IInterceptor
-					// Used in the Get() call
 					ilGetter.Emit(OpCodes.Newobj, GetInfoConstructor);
-	
-					// Used in the GetSetInfo.PropertyType = assignment
-					ilGetter.Emit(OpCodes.Dup);
+					// Store it in the local setInfo variable
+					ilGetter.Emit(OpCodes.Stloc, getInfo);
 
-					// Used in the GetSetInfo.PropertyName = assignment
-					ilGetter.Emit(OpCodes.Dup);
-
+					// Get the getInfo local variable value
+					ilGetter.Emit(OpCodes.Ldloc, getInfo);
 					// Load the name of the property on the stack
 					ilGetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
 					// Set the value to the PropertyName property of the GetSetInfo (call set_PropertyName)
 					ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
 
-					// Load the name of the property on the stack
+					// Get the getInfo local variable value
+					ilGetter.Emit(OpCodes.Ldloc, getInfo);
+					// Load the type of the property as RuntimeTypeHandle on the stack
 					ilGetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
+					// Convert the RuntimeTypeHandle to a type
+					ilGetter.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new[] { typeof(RuntimeTypeHandle) }));
 					// Set the value to the PropertyType property of the GetSetInfo (call set_PropertyType)
 					ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
 
+					// Load the instance of the class (this) on the stack
+					ilGetter.Emit(OpCodes.Ldarg_0);
+					// Get the interceptor value from this._interceptor
+					ilGetter.Emit(OpCodes.Ldfld, interceptorField);
+					// Get the getInfo local variable value
+					ilGetter.Emit(OpCodes.Ldloc, getInfo);
 					// Call the Get() method
 					ilGetter.Emit(OpCodes.Callvirt, InterceptorGet);
 
+					// Get the getInfo local variable value
+					ilGetter.Emit(OpCodes.Ldloc, getInfo);
+					// Call the get_Value method of the GetInfo
+					ilGetter.Emit(OpCodes.Callvirt, GetInfoValue);
+
+					// Cast the return value to the type of the property
 					ilGetter.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
 
 					// Return the object on the stack, left by the InterceptorGet call
@@ -172,7 +169,7 @@ namespace Dapplo.InterfaceImpl
 			// Example for making a exe, for a methodBuilder which creates a static main
 			//assemblyBuilder.SetEntryPoint(methodBuilder,PEFileKinds.Exe);
 			var returnType = typeBuilder.CreateType();
-			//Log.Debug().WriteLine("Wrote {0} to {1}", dllName, AppDomain.CurrentDomain.BaseDirectory);
+			Log.Debug().WriteLine("Wrote {0} to {1}", dllName, AppDomain.CurrentDomain.BaseDirectory);
 			assemblyBuilder.Save(dllName, PortableExecutableKinds.ILOnly, ImageFileMachine.AMD64);
 			return returnType;
 		}

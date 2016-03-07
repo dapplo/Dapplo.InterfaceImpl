@@ -32,7 +32,7 @@ namespace Dapplo.InterfaceImpl
 		/// </summary>
 		/// <param name="getInfo"></param>
 		/// <returns>get value</returns>
-		object Get(GetInfo getInfo);
+		void Get(GetInfo getInfo);
 
 		/// <summary>
 		///     This is called when a property set is used on the intercepted class.
