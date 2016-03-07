@@ -53,6 +53,8 @@ namespace Dapplo.InterfaceImpl.Test
 			Debug.WriteLine(myInstance.Name);
 			myInstance.Name = "Robin Krom2";
 			Assert.Equal("Robin Krom2", myInstance.Name);
+
+			myInstance.HelloWorld("Robin");
 		}
 	}
 }

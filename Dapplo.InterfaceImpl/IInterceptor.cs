@@ -40,5 +40,13 @@ namespace Dapplo.InterfaceImpl
 		/// </summary>
 		/// <param name="setInfo"></param>
 		void Set(SetInfo setInfo);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="methodName"></param>
+		/// <param name="parameters"></param>
+		/// <returns></returns>
+		object Invoke(string methodName, params object[] parameters);
 	}
 }

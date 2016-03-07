@@ -8,6 +8,6 @@
 			set;
 		}
 
-		//void HelloWorld(string name);
+		void HelloWorld(string name);
 	}
 }

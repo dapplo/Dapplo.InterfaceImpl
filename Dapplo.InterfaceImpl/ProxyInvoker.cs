@@ -65,7 +65,7 @@ namespace Dapplo.InterfaceImpl
 
 		public object Invoke(string methodName, params object[] parameters)
 		{
-			Debug.WriteLine("{0}({1})", methodName, string.Join(",", parameters));
+			Log.Debug().WriteLine("Invoke {0} => {1}", methodName, string.Join(",", parameters));
 			//throw new Exception("Blub");
 			return "ThisIsIgnored";
 		}

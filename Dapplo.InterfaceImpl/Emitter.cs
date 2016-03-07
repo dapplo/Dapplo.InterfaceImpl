@@ -23,6 +23,7 @@
 
 using Dapplo.LogFacade;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
@@ -34,6 +35,8 @@ namespace Dapplo.InterfaceImpl
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly MethodAttributes SetGetMethodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.Virtual | MethodAttributes.Final;
+		private static readonly MethodAttributes MethodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final;
+
 		private static readonly ConstructorInfo SetInfoConstructor = typeof(SetInfo).GetConstructor(Type.EmptyTypes);
 		private static readonly MethodInfo GetSetInfoPropertyName = typeof (GetSetInfo).GetProperty("PropertyName").GetSetMethod();
 		private static readonly MethodInfo GetSetInfoPropertyType = typeof(GetSetInfo).GetProperty("PropertyType").GetSetMethod();
@@ -41,6 +44,8 @@ namespace Dapplo.InterfaceImpl
 		private static readonly MethodInfo GetInfoValue = typeof(GetInfo).GetProperty("Value").GetGetMethod();
 		private static readonly MethodInfo InterceptorGet = typeof(IInterceptor).GetMethod("Get");
 		private static readonly MethodInfo InterceptorSet = typeof(IInterceptor).GetMethod("Set");
+		private static readonly MethodInfo InterceptorInvoke = typeof(IInterceptor).GetMethod("Invoke");
+
 		private static readonly ConstructorInfo GetInfoConstructor = typeof(GetInfo).GetConstructor(Type.EmptyTypes);
 
 		public static Type CreateType(string assemblyNameString, string typeName, Type interfaceType)
@@ -66,106 +71,24 @@ namespace Dapplo.InterfaceImpl
 
 				if (propertyInfo.CanWrite)
 				{
-					var setterBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name, SetGetMethodAttributes, typeof (void), new[] {propertyInfo.PropertyType});
-					var ilSetter = setterBuilder.GetILGenerator();
-
-					// Local SetInfo variable
-					var setInfo = ilSetter.DeclareLocal(typeof(SetInfo));
-
-					// Create new SetInfo class for the argument which are passed to the IInterceptor
-					ilSetter.Emit(OpCodes.Newobj, SetInfoConstructor);
-					// Store it in the local setInfo variable
-					ilSetter.Emit(OpCodes.Stloc, setInfo);
-
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
-					// Load the argument with the value on the stack
-					ilSetter.Emit(OpCodes.Ldarg_1);
-					// Set the value to the NewValue property of the SetInfo (call set_NewValue)
-					ilSetter.Emit(OpCodes.Callvirt, SetInfoNewValue);
-
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
-					// Load the name of the property on the stack
-					ilSetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
-					// Set the value to the PropertyName property of the SetInfo (call set_PropertyName)
-					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
-
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
-					// Load the type of the property on the stack
-					ilSetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
-					// Convert the RuntimeTypeHandle to a type
-					ilSetter.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new[] { typeof(RuntimeTypeHandle) }));
-					// Set the value to the PropertyType property of the SetInfo (call set_PropertyType)
-					ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
-
-					// Load the instance of the class (this) on the stack
-					ilSetter.Emit(OpCodes.Ldarg_0);
-					// Get the interceptor value of this._interceptor
-					ilSetter.Emit(OpCodes.Ldfld, interceptorField);
-					// Get the setInfo local variable value
-					ilSetter.Emit(OpCodes.Ldloc, setInfo);
-					// Call the "SetMethod" method
-					ilSetter.Emit(OpCodes.Callvirt, InterceptorSet);
-
-					// return
-					ilSetter.Emit(OpCodes.Ret);
-
+					var setterBuilder = BuildGetter(typeBuilder, propertyInfo, interceptorField);
 					propertyBuilder.SetSetMethod(setterBuilder);
 				}
 
 				if (propertyInfo.CanRead)
 				{
-					var getterBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, SetGetMethodAttributes, propertyInfo.PropertyType, Type.EmptyTypes);
-					var ilGetter = getterBuilder.GetILGenerator();
-
-					// Local GetInfo variable
-					var getInfo = ilGetter.DeclareLocal(typeof(GetInfo));
-
-					// Create new GetInfo class for the argument which are passed to the IInterceptor
-					ilGetter.Emit(OpCodes.Newobj, GetInfoConstructor);
-					// Store it in the local setInfo variable
-					ilGetter.Emit(OpCodes.Stloc, getInfo);
-
-					// Get the getInfo local variable value
-					ilGetter.Emit(OpCodes.Ldloc, getInfo);
-					// Load the name of the property on the stack
-					ilGetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
-					// Set the value to the PropertyName property of the GetSetInfo (call set_PropertyName)
-					ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
-
-					// Get the getInfo local variable value
-					ilGetter.Emit(OpCodes.Ldloc, getInfo);
-					// Load the type of the property as RuntimeTypeHandle on the stack
-					ilGetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
-					// Convert the RuntimeTypeHandle to a type
-					ilGetter.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new[] { typeof(RuntimeTypeHandle) }));
-					// Set the value to the PropertyType property of the GetSetInfo (call set_PropertyType)
-					ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
-
-					// Load the instance of the class (this) on the stack
-					ilGetter.Emit(OpCodes.Ldarg_0);
-					// Get the interceptor value from this._interceptor
-					ilGetter.Emit(OpCodes.Ldfld, interceptorField);
-					// Get the getInfo local variable value
-					ilGetter.Emit(OpCodes.Ldloc, getInfo);
-					// Call the Get() method
-					ilGetter.Emit(OpCodes.Callvirt, InterceptorGet);
-
-					// Get the getInfo local variable value
-					ilGetter.Emit(OpCodes.Ldloc, getInfo);
-					// Call the get_Value method of the GetInfo
-					ilGetter.Emit(OpCodes.Callvirt, GetInfoValue);
-
-					// Cast the return value to the type of the property
-					ilGetter.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
-
-					// Return the object on the stack, left by the InterceptorGet call
-					ilGetter.Emit(OpCodes.Ret);
-
+					var getterBuilder = BuildSetter(typeBuilder, propertyInfo, interceptorField);
 					propertyBuilder.SetGetMethod(getterBuilder);
 				}
+			}
+
+			foreach (var methodInfo in interfaceType.GetMethods())
+			{
+				if (methodInfo.Name.StartsWith("get_") || methodInfo.Name.StartsWith("set_"))
+				{
+					continue;
+				}
+				BuildMethod(typeBuilder, methodInfo, interceptorField);
 			}
 
 			// Example for making a exe, for a methodBuilder which creates a static main
@@ -174,6 +97,172 @@ namespace Dapplo.InterfaceImpl
 			Log.Debug().WriteLine("Wrote {0} to {1}", dllName, AppDomain.CurrentDomain.BaseDirectory);
 			assemblyBuilder.Save(dllName, PortableExecutableKinds.ILOnly, ImageFileMachine.AMD64);
 			return returnType;
+		}
+
+		/// <summary>
+		/// Create the method invoke
+		/// </summary>
+		/// <param name="typeBuilder"></param>
+		/// <param name="methodInfo"></param>
+		/// <param name="interceptorField"></param>
+		private static void BuildMethod(TypeBuilder typeBuilder, MethodInfo methodInfo, FieldBuilder interceptorField)
+		{
+			var parameterTypes = (
+				from parameterInfo in methodInfo.GetParameters()
+				select parameterInfo.ParameterType).ToArray();
+
+			var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes, methodInfo.ReturnType, parameterTypes);
+			var ilMethod = methodBuilder.GetILGenerator();
+
+			var local = ilMethod.DeclareLocal(typeof(object[]));
+
+			int arraySize = methodInfo.GetParameters().Count();
+			ilMethod.Emit(OpCodes.Ldc_I4, arraySize);
+			ilMethod.Emit(OpCodes.Newarr, typeof(object));
+			ilMethod.Emit(OpCodes.Stloc, local);
+			for (int i = 0; i < arraySize; i++)
+			{
+				ilMethod.Emit(OpCodes.Ldloc, local);
+				ilMethod.Emit(OpCodes.Ldc_I4, i);
+				ilMethod.Emit(OpCodes.Ldarg, i + 1);
+				ilMethod.Emit(OpCodes.Stelem_Ref);
+			}
+
+			// Load the instance of the class (this) on the stack
+			ilMethod.Emit(OpCodes.Ldarg_0);
+			// Get the interceptor value of this._interceptor
+			ilMethod.Emit(OpCodes.Ldfld, interceptorField);
+			ilMethod.Emit(OpCodes.Ldstr, methodInfo.Name);
+			ilMethod.Emit(OpCodes.Ldloc, local);
+
+			ilMethod.Emit(OpCodes.Callvirt, InterceptorInvoke);
+			if (methodInfo.ReturnType == typeof (void))
+			{
+				ilMethod.Emit(OpCodes.Pop);
+			}
+			else
+			{
+				// Cast the return value
+				ilMethod.Emit(OpCodes.Castclass, methodInfo.ReturnType);
+			}
+			ilMethod.Emit(OpCodes.Ret);
+		}
+
+		/// <summary>
+		/// Build the getter for the property
+		/// </summary>
+		/// <param name="typeBuilder"></param>
+		/// <param name="propertyInfo"></param>
+		/// <param name="interceptorField"></param>
+		/// <returns>MethodBuilder with the getter</returns>
+		private static MethodBuilder BuildSetter(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldBuilder interceptorField)
+		{
+			var setterBuilder = typeBuilder.DefineMethod("set_" + propertyInfo.Name, SetGetMethodAttributes, typeof(void), new[] { propertyInfo.PropertyType });
+			var ilSetter = setterBuilder.GetILGenerator();
+
+			// Local SetInfo variable
+			var setInfo = ilSetter.DeclareLocal(typeof(SetInfo));
+
+			// Create new SetInfo class for the argument which are passed to the IInterceptor
+			ilSetter.Emit(OpCodes.Newobj, SetInfoConstructor);
+			// Store it in the local setInfo variable
+			ilSetter.Emit(OpCodes.Stloc, setInfo);
+
+			// Get the setInfo local variable value
+			ilSetter.Emit(OpCodes.Ldloc, setInfo);
+			// Load the argument with the value on the stack
+			ilSetter.Emit(OpCodes.Ldarg_1);
+			// Set the value to the NewValue property of the SetInfo (call set_NewValue)
+			ilSetter.Emit(OpCodes.Callvirt, SetInfoNewValue);
+
+			// Get the setInfo local variable value
+			ilSetter.Emit(OpCodes.Ldloc, setInfo);
+			// Load the name of the property on the stack
+			ilSetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
+			// Set the value to the PropertyName property of the SetInfo (call set_PropertyName)
+			ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
+
+			// Get the setInfo local variable value
+			ilSetter.Emit(OpCodes.Ldloc, setInfo);
+			// Load the type of the property on the stack
+			ilSetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
+			// Convert the RuntimeTypeHandle to a type
+			ilSetter.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new[] { typeof(RuntimeTypeHandle) }));
+			// Set the value to the PropertyType property of the SetInfo (call set_PropertyType)
+			ilSetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
+
+			// Load the instance of the class (this) on the stack
+			ilSetter.Emit(OpCodes.Ldarg_0);
+			// Get the interceptor value of this._interceptor
+			ilSetter.Emit(OpCodes.Ldfld, interceptorField);
+			// Get the setInfo local variable value
+			ilSetter.Emit(OpCodes.Ldloc, setInfo);
+			// Call the "SetMethod" method
+			ilSetter.Emit(OpCodes.Callvirt, InterceptorSet);
+
+			// return
+			ilSetter.Emit(OpCodes.Ret);
+
+			return setterBuilder;
+		}
+
+		/// <summary>
+		/// Build the getter for the property
+		/// </summary>
+		/// <param name="typeBuilder"></param>
+		/// <param name="propertyInfo"></param>
+		/// <param name="interceptorField"></param>
+		/// <returns>MethodBuilder with the getter</returns>
+		private static MethodBuilder BuildGetter(TypeBuilder typeBuilder, PropertyInfo propertyInfo, FieldBuilder interceptorField)
+		{
+			var getterBuilder = typeBuilder.DefineMethod("get_" + propertyInfo.Name, SetGetMethodAttributes, propertyInfo.PropertyType, Type.EmptyTypes);
+			var ilGetter = getterBuilder.GetILGenerator();
+
+			// Local GetInfo variable
+			var getInfo = ilGetter.DeclareLocal(typeof(GetInfo));
+
+			// Create new GetInfo class for the argument which are passed to the IInterceptor
+			ilGetter.Emit(OpCodes.Newobj, GetInfoConstructor);
+			// Store it in the local setInfo variable
+			ilGetter.Emit(OpCodes.Stloc, getInfo);
+
+			// Get the getInfo local variable value
+			ilGetter.Emit(OpCodes.Ldloc, getInfo);
+			// Load the name of the property on the stack
+			ilGetter.Emit(OpCodes.Ldstr, propertyInfo.Name);
+			// Set the value to the PropertyName property of the GetSetInfo (call set_PropertyName)
+			ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyName);
+
+			// Get the getInfo local variable value
+			ilGetter.Emit(OpCodes.Ldloc, getInfo);
+			// Load the type of the property as RuntimeTypeHandle on the stack
+			ilGetter.Emit(OpCodes.Ldtoken, propertyInfo.PropertyType);
+			// Convert the RuntimeTypeHandle to a type
+			ilGetter.Emit(OpCodes.Call, typeof(Type).GetMethod("GetTypeFromHandle", new[] { typeof(RuntimeTypeHandle) }));
+			// Set the value to the PropertyType property of the GetSetInfo (call set_PropertyType)
+			ilGetter.Emit(OpCodes.Callvirt, GetSetInfoPropertyType);
+
+			// Load the instance of the class (this) on the stack
+			ilGetter.Emit(OpCodes.Ldarg_0);
+			// Get the interceptor value from this._interceptor
+			ilGetter.Emit(OpCodes.Ldfld, interceptorField);
+			// Get the getInfo local variable value
+			ilGetter.Emit(OpCodes.Ldloc, getInfo);
+			// Call the Get() method
+			ilGetter.Emit(OpCodes.Callvirt, InterceptorGet);
+
+			// Get the getInfo local variable value
+			ilGetter.Emit(OpCodes.Ldloc, getInfo);
+			// Call the get_Value method of the GetInfo
+			ilGetter.Emit(OpCodes.Callvirt, GetInfoValue);
+
+			// Cast the return value to the type of the property
+			ilGetter.Emit(OpCodes.Castclass, propertyInfo.PropertyType);
+
+			// Return the object on the stack, left by the InterceptorGet call
+			ilGetter.Emit(OpCodes.Ret);
+
+			return getterBuilder;
 		}
 
 		private static FieldBuilder BuildProperty(TypeBuilder typeBuilder, string name, Type type)
