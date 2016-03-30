@@ -16,13 +16,12 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Lesser General Public License for more details.
 // 
-//  You should have Config a copy of the GNU Lesser General Public License
+//  You should have a copy of the GNU Lesser General Public License
 //  along with Dapplo.InterfaceImpl. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
 
 #region using
 
-using System;
-using System.Diagnostics;
+using Dapplo.InterfaceImpl.Test.Interfaces;
 using Dapplo.LogFacade;
 using Xunit;
 using Xunit.Abstractions;
@@ -31,30 +30,21 @@ using Xunit.Abstractions;
 
 namespace Dapplo.InterfaceImpl.Test
 {
-	public class EmitterTests
+	public class ObjectTest
 	{
-		public EmitterTests(ITestOutputHelper testOutputHelper)
+		private readonly IBassicAssignTest _bassicAssignTest;
+
+		public ObjectTest(ITestOutputHelper testOutputHelper)
 		{
 			XUnitLogger.RegisterLogger(testOutputHelper, LogLevel.Verbose);
+			_bassicAssignTest = InterceptorFactory.New<IBassicAssignTest>();
 		}
 
 		[Fact]
-		public void Test()
+		public void TestObject()
 		{
-			var type = Emitter.CreateType("Robin", "RobinType", typeof (IPropertyInterface));
-			var myInstance = (IPropertyInterface) Activator.CreateInstance(type);
-			var intercepted = myInstance as IIntercepted;
-			intercepted.Interceptor = new ProxyInvoker();
-
-			//myInstance.HelloWorld("Robin");
-			myInstance.Name = "Robin Krom";
-
-			Assert.Equal("Robin Krom", myInstance.Name);
-			Debug.WriteLine(myInstance.Name);
-			myInstance.Name = "Robin Krom2";
-			Assert.Equal("Robin Krom2", myInstance.Name);
-
-			myInstance.HelloWorld("Robin");
+			Assert.NotEqual(0, _bassicAssignTest.GetHashCode());
+			Assert.NotNull(_bassicAssignTest.GetType());
 		}
 	}
 }

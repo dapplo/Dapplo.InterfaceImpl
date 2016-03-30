@@ -16,23 +16,29 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Lesser General Public License for more details.
 // 
-//  You should have Config a copy of the GNU Lesser General Public License
+//  You should have a copy of the GNU Lesser General Public License
 //  along with Dapplo.InterfaceImpl. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
+
+#region using
+
+#endregion
+
+#region using
+
+using System.Windows.Threading;
+
+#endregion
 
 namespace Dapplo.InterfaceImpl
 {
 	/// <summary>
-	/// This interface is implemented by the interface implementation type which is generated.
+	///     Used to configure some of the behavior of Dapplo.Config
 	/// </summary>
-	public interface IIntercepted
+	public static class Config
 	{
 		/// <summary>
-		/// This is the interceptor for the intercepted interface
+		///     If this is set, it will be used to dispatch events (like PropertyChanged)
 		/// </summary>
-		IInterceptor Interceptor
-		{
-			get;
-			set;
-		}
+		public static Dispatcher EventDispatcher { get; set; }
 	}
 }

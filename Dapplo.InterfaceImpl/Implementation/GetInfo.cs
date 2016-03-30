@@ -1,4 +1,4 @@
-﻿//  Dapplo - building blocks for desktop applications
+//  Dapplo - building blocks for desktop applications
 //  Copyright (C) 2015-2016 Dapplo
 // 
 //  For more information see: http://dapplo.net/
@@ -16,37 +16,24 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Lesser General Public License for more details.
 // 
-//  You should have Config a copy of the GNU Lesser General Public License
+//  You should have a copy of the GNU Lesser General Public License
 //  along with Dapplo.InterfaceImpl. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
 
-namespace Dapplo.InterfaceImpl
+namespace Dapplo.InterfaceImpl.Implementation
 {
 	/// <summary>
-	/// To intercept interface calls, implement this and set your class to the IIntercepted
+	///     This class contains all the information for the getter actions
 	/// </summary>
-	public interface IInterceptor
+	public class GetInfo : GetSetInfo
 	{
 		/// <summary>
-		///     This is called when a property get is used on the intercepted class.
-		///     The Get method should set the getInfo.Value for the return value
+		///     The value of the property
 		/// </summary>
-		/// <param name="getInfo"></param>
-		/// <returns>get value</returns>
-		void Get(GetInfo getInfo);
+		public bool HasValue { get; set; }
 
 		/// <summary>
-		///     This is called when a property set is used on the intercepted class.
-		///     The Set method should process setInfo.NewValue.
+		///     The value of the property
 		/// </summary>
-		/// <param name="setInfo"></param>
-		void Set(SetInfo setInfo);
-
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="methodName"></param>
-		/// <param name="parameters"></param>
-		/// <returns></returns>
-		object Invoke(string methodName, params object[] parameters);
+		public object Value { get; set; }
 	}
 }

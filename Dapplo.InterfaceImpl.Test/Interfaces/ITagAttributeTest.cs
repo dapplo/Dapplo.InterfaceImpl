@@ -16,19 +16,32 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Lesser General Public License for more details.
 // 
-//  You should have Config a copy of the GNU Lesser General Public License
+//  You should have a copy of the GNU Lesser General Public License
 //  along with Dapplo.InterfaceImpl. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
 
-namespace Dapplo.InterfaceImpl
+#region using
+
+#endregion
+
+#region using
+
+using Dapplo.InterfaceImpl.Extensions;
+
+#endregion
+
+namespace Dapplo.InterfaceImpl.Test.Interfaces
 {
 	/// <summary>
-	///     This is passed to the interceptor when a get is called
+	///     This is the interface under test
 	/// </summary>
-	public class GetInfo : GetSetInfo
+	public interface ITagAttributeTest : ITagging<ITagAttributeTest>
 	{
-		/// <summary>
-		///     The new value
-		/// </summary>
-		public object Value { get; set; }
+		[Tag("Expert")]
+		int Age { get; set; }
+
+		[Tag(TestTags.Tag2), Tag(TestTags.Tag1, "Robin")]
+		string FirstName { get; set; }
+
+		string Name { get; set; }
 	}
 }

@@ -33,8 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.LogFacade, Version=0.2.13.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.LogFacade.0.2.13.0\lib\net46\Dapplo.LogFacade.dll</HintPath>
+    <Reference Include="Dapplo.LogFacade, Version=0.2.20.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.LogFacade.0.2.20\lib\net45\Dapplo.LogFacade.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -63,9 +63,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EmitterTests.cs" />
-    <Compile Include="IPropertyInterface.cs" />
+    <Compile Include="BasicAssignTest.cs" />
+    <Compile Include="DefaultValueTest.cs" />
+    <Compile Include="DescriptionTest.cs" />
+    <Compile Include="Interfaces\IBassicAssignTest.cs" />
+    <Compile Include="Interfaces\IDefaultValueTest.cs" />
+    <Compile Include="Interfaces\IDefaultValueWithErrorTest.cs" />
+    <Compile Include="Interfaces\IDescriptionTest.cs" />
+    <Compile Include="Interfaces\INotifyPropertyChangedTest.cs" />
+    <Compile Include="Interfaces\INotifyPropertyChangingTest.cs" />
+    <Compile Include="Interfaces\ITagAttributeTest.cs" />
+    <Compile Include="Interfaces\ITransactionTest.cs" />
+    <Compile Include="Interfaces\IWriteProtectTest.cs" />
+    <Compile Include="NotifyPropertyChangedTest.cs" />
+    <Compile Include="NotifyPropertyChangingTest.cs" />
+    <Compile Include="ObjectTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TagAttributeTest.cs" />
+    <Compile Include="TransactionTest.cs" />
+    <Compile Include="WriteProtectTest.cs" />
     <Compile Include="XUnitLogger.cs" />
   </ItemGroup>
   <ItemGroup>

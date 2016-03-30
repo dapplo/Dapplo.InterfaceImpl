@@ -1,4 +1,4 @@
-﻿//  Dapplo - building blocks for desktop applications
+//  Dapplo - building blocks for desktop applications
 //  Copyright (C) 2015-2016 Dapplo
 // 
 //  For more information see: http://dapplo.net/
@@ -16,7 +16,7 @@
 //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //  GNU Lesser General Public License for more details.
 // 
-//  You should have Config a copy of the GNU Lesser General Public License
+//  You should have a copy of the GNU Lesser General Public License
 //  along with Dapplo.InterfaceImpl. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
 
 #region using
@@ -25,29 +25,38 @@ using System;
 
 #endregion
 
-namespace Dapplo.InterfaceImpl
+namespace Dapplo.InterfaceImpl.Implementation
 {
-	/// <summary>
-	///     This information is used when a get or set is called.
-	/// </summary>
 	public class GetSetInfo
 	{
 		/// <summary>
-		///     Name of the property which is currently read/written
+		///     Can the proxy continue with other getter/setters?
+		///     This should be set to false if a getter/setter implementation wants to throw an exception or thinks there should be
+		///     no more others.
 		/// </summary>
-		public string PropertyName
+		public bool CanContinue { get; set; }
+
+		/// <summary>
+		///     This can be set to an exception if a getter/setter wants to throw an exception
+		/// </summary>
+		public Exception Error { get; set; }
+
+		/// <summary>
+		///     Simple property to check for error
+		/// </summary>
+		public bool HasError
 		{
-			get;
-			set;
+			get { return Error != null; }
 		}
 
 		/// <summary>
-		///     Type for the property
+		///     Property name of the property that is being get/set
 		/// </summary>
-		public Type PropertyType
-		{
-			get;
-			set;
-		}
+		public string PropertyName { get; set; }
+
+		/// <summary>
+		///     Type of the property that is being get/set
+		/// </summary>
+		public Type PropertyType { get; set; }
 	}
 }
