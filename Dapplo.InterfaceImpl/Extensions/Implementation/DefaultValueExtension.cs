@@ -25,7 +25,7 @@ using System;
 using System.Reflection;
 using Dapplo.InterfaceImpl.Implementation;
 using Dapplo.LogFacade;
-using Dapplo.Utils;
+using Dapplo.Utils.Extensions;
 
 #endregion
 

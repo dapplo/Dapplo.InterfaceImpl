@@ -29,6 +29,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Dapplo.LogFacade;
 using Dapplo.Utils;
+using Dapplo.Utils.Extensions;
 
 #endregion
 
@@ -164,7 +165,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 				catch (Exception ex)
 				{
 					Log.Warn().WriteLine(ex.Message);
-					InitializationErrors.SafelyAddOrOverwrite(propertyInfo.Name, ex);
+					InitializationErrors.AddOrOverwrite(propertyInfo.Name, ex);
 				}
 			}
 		}
@@ -193,7 +194,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			{
 				foreach (var key in value.Keys)
 				{
-					_properties.SafelyAddOrOverwrite(key, value[key]);
+					_properties.AddOrOverwrite(key, value[key]);
 				}
 			}
 		}
@@ -394,7 +395,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 
 			var newValue = propertyType.ConvertOrCastValueToType(setInfo.NewValue);
 			// Add the value to the dictionary
-			_properties.SafelyAddOrOverwrite(setInfo.PropertyName, newValue);
+			_properties.AddOrOverwrite(setInfo.PropertyName, newValue);
 		}
 
 		#endregion

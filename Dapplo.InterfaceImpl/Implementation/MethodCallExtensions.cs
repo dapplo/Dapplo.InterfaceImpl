@@ -22,7 +22,7 @@
 #region using
 
 using System.Linq.Expressions;
-using Dapplo.Utils;
+using Dapplo.Utils.Extensions;
 
 #endregion
 

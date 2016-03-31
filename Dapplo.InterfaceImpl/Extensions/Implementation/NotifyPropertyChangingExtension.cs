@@ -72,7 +72,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				var propertyChangingEventArgs = new PropertyChangingEventArgs(setInfo.PropertyName);
 				if (Config.EventDispatcher != null && !Config.EventDispatcher.CheckAccess())
 				{
-					Config.EventDispatcher.BeginInvoke(PropertyChanging, this, propertyChangingEventArgs);
+					// Use invoke to make sure the rest of the code is waiting.
+					Config.EventDispatcher.Invoke(PropertyChanging, this, propertyChangingEventArgs);
 				}
 				else
 				{

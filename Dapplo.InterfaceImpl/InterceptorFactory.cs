@@ -27,7 +27,7 @@ using System.Linq;
 using Dapplo.InterfaceImpl.Extensions.Implementation;
 using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Utils;
+using Dapplo.Utils.Extensions;
 
 #endregion
 
@@ -63,7 +63,7 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="baseType">should extend ExtensibleInterceptorImpl</param>
 		public static void DefineBaseTypeForInterface(Type interfaceType, Type baseType)
 		{
-			BaseTypeMap.SafelyAddOrOverwrite(interfaceType, baseType);
+			BaseTypeMap.AddOrOverwrite(interfaceType, baseType);
 		}
 
 		/// <summary>
@@ -74,7 +74,7 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="defaultInterfaces"></param>
 		public static void DefineDefaultInterfaces(Type interfaceType, Type[] defaultInterfaces)
 		{
-			DefaultInterfacesMap.SafelyAddOrOverwrite(interfaceType, defaultInterfaces);
+			DefaultInterfacesMap.AddOrOverwrite(interfaceType, defaultInterfaces);
 		}
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="implementation"></param>
 		public static void DefineImplementationTypeForInterface(Type interfaceType, Type implementation)
 		{
-			TypeMap.SafelyAddOrOverwrite(interfaceType, implementation);
+			TypeMap.AddOrOverwrite(interfaceType, implementation);
 		}
 
 		/// <summary>

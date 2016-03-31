@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Dapplo.InterfaceImpl.Implementation;
 using Dapplo.Utils;
+using Dapplo.Utils.Extensions;
 
 #endregion
 
@@ -85,7 +86,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 						tags = new Dictionary<object, object>();
 						_taggedProperties.Add(propertyInfo.Name, tags);
 					}
-					tags.SafelyAddOrOverwrite(tagAttribute.Tag, tagAttribute.TagValue);
+					tags.AddOrOverwrite(tagAttribute.Tag, tagAttribute.TagValue);
 				}
 			}
 		}
