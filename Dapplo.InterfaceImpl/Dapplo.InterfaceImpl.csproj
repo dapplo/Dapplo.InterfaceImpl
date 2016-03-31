@@ -31,8 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.LogFacade, Version=0.2.20.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.LogFacade.0.2.20\lib\net45\Dapplo.LogFacade.dll</HintPath>
+    <Reference Include="Dapplo.LogFacade, Version=0.2.21.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.LogFacade.0.2.21\lib\net45\Dapplo.LogFacade.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Dapplo.Utils, Version=0.1.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.4\lib\net452\Dapplo.Utils.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -83,12 +87,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Dapplo.Utils\Dapplo.Utils.csproj">
-      <Project>{c3bac8c1-2134-4f87-851d-dd14dd4dfb75}</Project>
-      <Name>Dapplo.Utils</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
