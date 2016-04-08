@@ -26,8 +26,17 @@ namespace Dapplo.InterfaceImpl.Implementation
 	/// </summary>
 	public enum CallOrder
 	{
+		/// <summary>
+		/// Everything which has this as their order would be invoked first 
+		/// </summary>
 		First = int.MinValue,
+		/// <summary>
+		/// Everything which has this as their order would be invoked somewhere between first and last 
+		/// </summary>
 		Middle = 0,
+		/// <summary>
+		/// Everything which has this as their order would be invoked last 
+		/// </summary>
 		Last = int.MaxValue
 	}
 }

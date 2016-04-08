@@ -37,7 +37,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	internal class TransactionExtension : AbstractInterceptorExtension
 	{
 		// A store for the values that are set during the transaction
-		private readonly IDictionary<string, object> _transactionProperties = new Dictionary<string, object>(AbcComparer.Instance);
+		private readonly IDictionary<string, object> _transactionProperties = new Dictionary<string, object>(new AbcComparer());
 		// This boolean has the value true if we are currently in a transaction
 		private bool _inTransaction;
 

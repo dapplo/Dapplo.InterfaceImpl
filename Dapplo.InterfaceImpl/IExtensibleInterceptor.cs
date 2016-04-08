@@ -45,6 +45,9 @@ namespace Dapplo.InterfaceImpl
 		/// </summary>
 		IDictionary<string, Exception> InitializationErrors { get; }
 
+		/// <summary>
+		/// The type which is intercepted
+		/// </summary>
 		Type InterceptedType { get; }
 
 		/// <summary>
@@ -63,6 +66,11 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="extensionType"></param>
 		void AddExtension(Type extensionType);
 
+		/// <summary>
+		/// Return the value from the DescriptionAttribute of this property
+		/// </summary>
+		/// <param name="propertyName"></param>
+		/// <returns></returns>
 		string Description(string propertyName);
 
 		/// <summary>
@@ -84,9 +92,25 @@ namespace Dapplo.InterfaceImpl
 		/// <returns></returns>
 		object Invoke(string methodName, params object[] parameters);
 
+		/// <summary>
+		/// This will register a getter, with an order
+		/// </summary>
+		/// <param name="order">The order is used to sort all getters, you can use the CallOrder enum for positioning</param>
+		/// <param name="getterAction">An Action for the getter, the argument is GetInfo</param>
 		void RegisterGetter(int order, Action<GetInfo> getterAction);
 
+		/// <summary>
+		/// This will register an action for a certain method. No overloading...
+		/// </summary>
+		/// <param name="methodname">Name of the method</param>
+		/// <param name="methodAction">Action which accepts MethodCallInfo</param>
 		void RegisterMethod(string methodname, Action<MethodCallInfo> methodAction);
+
+		/// <summary>
+		/// This will register a setter, with an order
+		/// </summary>
+		/// <param name="order">The order is used to sort all setters, you can use the CallOrder enum for positioning</param>
+		/// <param name="setterAction">An Action for the setter, the argument is SetInfo</param>
 		void RegisterSetter(int order, Action<SetInfo> setterAction);
 
 		/// <summary>

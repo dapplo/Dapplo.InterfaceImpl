@@ -34,11 +34,18 @@ namespace Dapplo.InterfaceImpl
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 	public class ExtensionAttribute : Attribute
 	{
+		/// <summary>
+		/// Constructor for the ExtensionAttribute
+		/// </summary>
+		/// <param name="implementing">Interface-type which the extension will "implement"</param>
 		public ExtensionAttribute(Type implementing)
 		{
 			Implementing = implementing;
 		}
 
+		/// <summary>
+		/// Interface-type which the extension will "implement"
+		/// </summary>
 		public Type Implementing { get; set; }
 	}
 }

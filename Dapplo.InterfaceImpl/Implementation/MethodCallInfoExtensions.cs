@@ -28,7 +28,10 @@ using Dapplo.Utils.Extensions;
 
 namespace Dapplo.InterfaceImpl.Implementation
 {
-	public static class MethodCallExtensions
+	/// <summary>
+	/// Extensions for the MethodCallInfo
+	/// </summary>
+	public static class MethodCallInfoExtensions
 	{
 		/// <summary>
 		///     Get the property name from the argument "index" of the MethodCallInfo

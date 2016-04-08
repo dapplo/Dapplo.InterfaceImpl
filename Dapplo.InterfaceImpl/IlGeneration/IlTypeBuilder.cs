@@ -50,7 +50,6 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		/// <summary>
 		///     Creates an implementation as Type for a given interface, which can be intercepted
 		/// </summary>
-		/// <param name="assemblyNameString">Name of the assembly to add the type to</param>
 		/// <param name="typeName">Name of the type to generate</param>
 		/// <param name="implementingInterfaces">Interfaces to implement</param>
 		/// <param name="baseType">Type as base</param>

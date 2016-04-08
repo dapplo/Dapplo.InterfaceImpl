@@ -27,6 +27,9 @@ using System;
 
 namespace Dapplo.InterfaceImpl.Implementation
 {
+	/// <summary>
+	/// Information for a Get or Set invocation
+	/// </summary>
 	public class GetSetInfo
 	{
 		/// <summary>

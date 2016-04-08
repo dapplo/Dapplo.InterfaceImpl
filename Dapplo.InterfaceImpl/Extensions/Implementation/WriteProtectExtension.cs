@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	internal class WriteProtectExtension : AbstractInterceptorExtension
 	{
 		// A store for the values that are write protected
-		private readonly ISet<string> _writeProtectedProperties = new HashSet<string>(AbcComparer.Instance);
+		private readonly ISet<string> _writeProtectedProperties = new HashSet<string>(new AbcComparer());
 		private bool _isProtecting;
 
 		/// <summary>

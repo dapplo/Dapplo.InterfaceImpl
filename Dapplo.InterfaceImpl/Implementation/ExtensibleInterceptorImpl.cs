@@ -45,7 +45,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		private readonly IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
 		private readonly IList<Getter> _getters = new List<Getter>();
 		private readonly IDictionary<string, List<Action<MethodCallInfo>>> _methodMap = new Dictionary<string, List<Action<MethodCallInfo>>>();
-		private readonly IDictionary<string, object> _properties = new Dictionary<string, object>(AbcComparer.Instance);
+		private readonly IDictionary<string, object> _properties = new Dictionary<string, object>(new AbcComparer());
 		private readonly IList<Setter> _setters = new List<Setter>();
 
 		/// <summary>
@@ -108,7 +108,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 				typeof (T)
 			};
 
-			var propertyTypes = new Dictionary<string, Type>(AbcComparer.Instance);
+			var propertyTypes = new Dictionary<string, Type>(new AbcComparer());
 			PropertyTypes = new ReadOnlyDictionary<string, Type>(propertyTypes);
 
 			// Now, create an IEnumerable for all the property info of all the properties in the interfaces that the
@@ -133,6 +133,10 @@ namespace Dapplo.InterfaceImpl.Implementation
 			}
 		}
 
+		/// <summary>
+		/// Called after the Initialization, this allows us to e.g. ignore errors
+		/// </summary>
+		/// <param name="extensions"></param>
 		protected virtual void AfterInitialization(IList<IInterceptorExtension> extensions)
 		{
 			// Call all AfterInitialization, this allows us to ignore errors
@@ -154,6 +158,11 @@ namespace Dapplo.InterfaceImpl.Implementation
 			return Description(propertyName);
 		}
 
+		/// <summary>
+		/// Call all extensions to initialize whatever needs to be initialized for a property
+		/// </summary>
+		/// <param name="propertyInfo"></param>
+		/// <param name="extensions"></param>
 		protected virtual void InitProperty(PropertyInfo propertyInfo, IList<IInterceptorExtension> extensions)
 		{
 			foreach (var extension in extensions)
@@ -175,7 +184,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     If an exception is catched during the initialization, it can be found here
 		/// </summary>
-		public IDictionary<string, Exception> InitializationErrors { get; } = new Dictionary<string, Exception>(AbcComparer.Instance);
+		public IDictionary<string, Exception> InitializationErrors { get; } = new Dictionary<string, Exception>(new AbcComparer());
 
 		/// <summary>
 		///     Get type of a property
@@ -199,6 +208,9 @@ namespace Dapplo.InterfaceImpl.Implementation
 			}
 		}
 
+		/// <summary>
+		/// The type which is intercepted
+		/// </summary>
 		public Type InterceptedType => typeof (T);
 
 

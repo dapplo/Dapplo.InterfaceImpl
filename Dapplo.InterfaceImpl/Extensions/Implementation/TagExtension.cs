@@ -36,7 +36,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	internal class TagExtension : AbstractInterceptorExtension
 	{
 		// The set of found expert properties
-		private readonly IDictionary<string, IDictionary<object, object>> _taggedProperties = new Dictionary<string, IDictionary<object, object>>(AbcComparer.Instance);
+		private readonly IDictionary<string, IDictionary<object, object>> _taggedProperties = new Dictionary<string, IDictionary<object, object>>(new AbcComparer());
 
 		/// <summary>
 		///     Check if a property is tagged with a certain tag

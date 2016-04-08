@@ -56,7 +56,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		}
 
 		/// <summary>
-		///     Register setter & methods
+		/// Register setter and methods
 		/// </summary>
 		public override void Initialize()
 		{
