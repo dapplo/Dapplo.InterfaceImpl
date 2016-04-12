@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapplo.InterfaceImpl", "Dapplo.InterfaceImpl\Dapplo.InterfaceImpl.csproj", "{7DE930B6-A2D6-45E4-B292-EE2050368F31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapplo.InterfaceImpl.Tests", "Dapplo.InterfaceImpl.Test\Dapplo.InterfaceImpl.Tests.csproj", "{E54A4A29-662A-49F2-A68E-549F1DF13D90}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dapplo.InterfaceImpl.Tests", "Dapplo.InterfaceImpl.Tests\Dapplo.InterfaceImpl.Tests.csproj", "{E54A4A29-662A-49F2-A68E-549F1DF13D90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

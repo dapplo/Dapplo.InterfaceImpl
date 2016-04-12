@@ -11,8 +11,8 @@
         <description>$description$</description>
 		<summary>Create implementations for interfaces</summary>
         <language>en-us</language>
-		<copyright>Copyright © Dapplo 2016</copyright>
-		<tags>generate interface impl il</tags>
+		<copyright>$author$</copyright>
+		<tags>generate interface impl il emit</tags>
     </metadata>
 	<files>
 		<file src="bin\release\$id$.pdb" target="lib\net452" />
