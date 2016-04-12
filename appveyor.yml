@@ -17,7 +17,13 @@ install:
 before_build:
   - nuget restore
 before_package:
+  - del /S /Q packages\OpenCover.4.6.519\SampleSln packages\OpenCover.4.6.519\Samples
   - GitLink .\
+after_test: 
+    - ps: .\CreateCoverage.ps1
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: n/N6BlvDKmDfYC/qkGfkV64Kus6obdGAPBhnaIEHKRuk6FUBbnb/8/d+VkzZ+z/7
 build:
   project: Dapplo.InterfaceImpl.sln
   publish_nuget: true

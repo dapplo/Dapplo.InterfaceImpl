@@ -8,8 +8,8 @@
     <ProjectGuid>{E54A4A29-662A-49F2-A68E-549F1DF13D90}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Dapplo.InterfaceImpl.Test</RootNamespace>
-    <AssemblyName>Dapplo.InterfaceImpl.Test</AssemblyName>
+    <RootNamespace>Dapplo.InterfaceImpl.Tests</RootNamespace>
+    <AssemblyName>Dapplo.InterfaceImpl.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -33,8 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapplo.LogFacade, Version=0.2.23.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapplo.LogFacade.0.2.23\lib\net45\Dapplo.LogFacade.dll</HintPath>
+    <Reference Include="Dapplo.LogFacade, Version=0.2.34.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.LogFacade.0.2.34\lib\net45\Dapplo.LogFacade.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -82,7 +82,7 @@
     <Compile Include="TagAttributeTest.cs" />
     <Compile Include="TransactionTest.cs" />
     <Compile Include="WriteProtectTest.cs" />
-    <Compile Include="XUnitLogger.cs" />
+    <Compile Include="Logger\XUnitLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

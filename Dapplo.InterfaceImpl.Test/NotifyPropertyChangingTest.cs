@@ -22,14 +22,15 @@
 #region using
 
 using System.ComponentModel;
-using Dapplo.InterfaceImpl.Test.Interfaces;
+using Dapplo.InterfaceImpl.Tests.Interfaces;
+using Dapplo.InterfaceImpl.Tests.Logger;
 using Dapplo.LogFacade;
 using Xunit;
 using Xunit.Abstractions;
 
 #endregion
 
-namespace Dapplo.InterfaceImpl.Test
+namespace Dapplo.InterfaceImpl.Tests
 {
 	public class NotifyPropertyChangingTest
 	{

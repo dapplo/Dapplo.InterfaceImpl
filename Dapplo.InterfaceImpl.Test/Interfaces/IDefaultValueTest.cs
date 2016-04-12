@@ -27,7 +27,7 @@ using Dapplo.InterfaceImpl.Extensions;
 
 #endregion
 
-namespace Dapplo.InterfaceImpl.Test.Interfaces
+namespace Dapplo.InterfaceImpl.Tests.Interfaces
 {
 	/// <summary>
 	///     This is the interface under test
