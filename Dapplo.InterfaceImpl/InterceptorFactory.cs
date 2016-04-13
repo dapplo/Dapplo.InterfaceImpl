@@ -43,6 +43,7 @@ namespace Dapplo.InterfaceImpl
 		private static readonly IDictionary<Type, Type> TypeMap = new Dictionary<Type, Type>();
 		private static readonly IDictionary<Type, Type> BaseTypeMap = new Dictionary<Type, Type>();
 		private static readonly IDictionary<Type, Type[]> DefaultInterfacesMap = new Dictionary<Type, Type[]>();
+		private static readonly IlTypeBuilder TypeBuilder = new IlTypeBuilder(false);
 
 		static InterceptorFactory()
 		{
@@ -84,7 +85,10 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="implementation"></param>
 		public static void DefineImplementationTypeForInterface(Type interfaceType, Type implementation)
 		{
-			TypeMap.AddOrOverwrite(interfaceType, implementation);
+			lock (TypeMap)
+			{
+				TypeMap.AddOrOverwrite(interfaceType, implementation);
+			}
 		}
 
 		/// <summary>
@@ -133,36 +137,39 @@ namespace Dapplo.InterfaceImpl
 
 			// Create an implementation, or lookup
 			Type implementingType;
-			if (!TypeMap.TryGetValue(interfaceType, out implementingType))
+			lock (TypeMap)
 			{
-				// Use this baseType if nothing is specified
-				var baseType = typeof (ExtensibleInterceptorImpl<>);
-				foreach (var implementingInterface in implementingInterfaces)
+				if (!TypeMap.TryGetValue(interfaceType, out implementingType))
 				{
-					if (BaseTypeMap.ContainsKey(implementingInterface))
+					// Use this baseType if nothing is specified
+					var baseType = typeof(ExtensibleInterceptorImpl<>);
+					foreach (var implementingInterface in implementingInterfaces)
 					{
-						baseType = BaseTypeMap[implementingInterface];
-						break;
+						if (BaseTypeMap.ContainsKey(implementingInterface))
+						{
+							baseType = BaseTypeMap[implementingInterface];
+							break;
+						}
 					}
-				}
-				// Make sure we have a non generic type, by filling in the "blanks"
-				if (baseType.IsGenericType)
-				{
-					baseType = baseType.MakeGenericType(interfaceType);
-				}
+					// Make sure we have a non generic type, by filling in the "blanks"
+					if (baseType.IsGenericType)
+					{
+						baseType = baseType.MakeGenericType(interfaceType);
+					}
 
-				// Build a name for the type
-				var typeName = interfaceType.Name + "Impl";
-				// Remove "I" at the start
-				if (typeName.StartsWith("I"))
-				{
-					typeName = typeName.Substring(1);
-				}
-				var fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, typeName);
-				implementingType = IlTypeBuilder.CreateType(fqTypeName, implementingInterfaces.ToArray(), baseType);
+					// Build a name for the type
+					var typeName = interfaceType.Name + "Impl";
+					// Remove "I" at the start
+					if (typeName.StartsWith("I"))
+					{
+						typeName = typeName.Substring(1);
+					}
+					var fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, typeName);
+					implementingType = TypeBuilder.CreateType(fqTypeName, implementingInterfaces.ToArray(), baseType);
 
-				// Register the implementation for the interface
-				DefineImplementationTypeForInterface(interfaceType, implementingType);
+					// Register the implementation for the interface
+					TypeMap.AddOrOverwrite(interfaceType, implementingType);
+				}
 			}
 
 			// Create an instance for the implementation

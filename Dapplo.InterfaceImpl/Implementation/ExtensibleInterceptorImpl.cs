@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Dapplo.LogFacade;
 using Dapplo.Utils;
@@ -144,18 +143,6 @@ namespace Dapplo.InterfaceImpl.Implementation
 			{
 				extension.AfterInitialization();
 			}
-		}
-
-		/// <summary>
-		///     Get the description attribute for a property
-		/// </summary>
-		/// <typeparam name="TProp"></typeparam>
-		/// <param name="propertyExpression"></param>
-		/// <returns>description</returns>
-		public string Description<TProp>(Expression<Func<T, TProp>> propertyExpression)
-		{
-			var propertyName = propertyExpression.GetMemberName();
-			return Description(propertyName);
 		}
 
 		/// <summary>

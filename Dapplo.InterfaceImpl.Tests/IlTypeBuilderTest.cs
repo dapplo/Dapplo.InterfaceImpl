@@ -21,6 +21,8 @@
 
 #region using
 
+using System.IO;
+using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.InterfaceImpl.Tests.Logger;
 using Dapplo.LogFacade;
@@ -31,24 +33,24 @@ using Xunit.Abstractions;
 
 namespace Dapplo.InterfaceImpl.Tests
 {
-	public class DescriptionTest
+	public class IlTypeBuilderTest
 	{
-		public const string TestDescription = "Name of the person";
-		private readonly IDescriptionTest _descriptionTest;
-
-		public DescriptionTest(ITestOutputHelper testOutputHelper)
+		public IlTypeBuilderTest(ITestOutputHelper testOutputHelper)
 		{
 			XUnitLogger.RegisterLogger(testOutputHelper, LogLevel.Verbose);
-			_descriptionTest = InterceptorFactory.New<IDescriptionTest>();
 		}
 
 		[Fact]
-		public void TestDescriptionAttribute()
+		public void TestSaveAssembly()
 		{
-			var description = _descriptionTest.DescriptionFor(x => x.Name);
-			Assert.Equal(TestDescription, description);
-			description = _descriptionTest.DescriptionFor("Name");
-			Assert.Equal(TestDescription, description);
+			var typeBuilder = new IlTypeBuilder(true, "Generated.Dapplo.InterfaceImpl.Tests");
+
+			var type = typeBuilder.CreateType("SimpleTypeTest", new[] { typeof (ISimpleTypeTest) } , typeof(object));
+			var tmpFileName = $"MySimpleType.dll";
+
+			typeBuilder.SaveAssemblyDll(tmpFileName);
+			Assert.True(File.Exists(tmpFileName));
+			File.Delete(tmpFileName);
 		}
 	}
 }

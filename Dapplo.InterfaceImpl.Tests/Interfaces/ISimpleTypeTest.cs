@@ -21,34 +21,18 @@
 
 #region using
 
-using Dapplo.InterfaceImpl.Tests.Interfaces;
-using Dapplo.InterfaceImpl.Tests.Logger;
-using Dapplo.LogFacade;
-using Xunit;
-using Xunit.Abstractions;
+using System.ComponentModel;
 
 #endregion
 
-namespace Dapplo.InterfaceImpl.Tests
+namespace Dapplo.InterfaceImpl.Tests.Interfaces
 {
-	public class DescriptionTest
+	/// <summary>
+	///     This is the interface under test
+	/// </summary>
+	public interface ISimpleTypeTest
 	{
-		public const string TestDescription = "Name of the person";
-		private readonly IDescriptionTest _descriptionTest;
-
-		public DescriptionTest(ITestOutputHelper testOutputHelper)
-		{
-			XUnitLogger.RegisterLogger(testOutputHelper, LogLevel.Verbose);
-			_descriptionTest = InterceptorFactory.New<IDescriptionTest>();
-		}
-
-		[Fact]
-		public void TestDescriptionAttribute()
-		{
-			var description = _descriptionTest.DescriptionFor(x => x.Name);
-			Assert.Equal(TestDescription, description);
-			description = _descriptionTest.DescriptionFor("Name");
-			Assert.Equal(TestDescription, description);
-		}
+		[Description("Name of the person")]
+		string Name { get; set; }
 	}
 }

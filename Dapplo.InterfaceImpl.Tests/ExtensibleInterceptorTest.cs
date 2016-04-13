@@ -31,24 +31,49 @@ using Xunit.Abstractions;
 
 namespace Dapplo.InterfaceImpl.Tests
 {
-	public class DescriptionTest
+	public class ExtensibleInterceptorTest
 	{
 		public const string TestDescription = "Name of the person";
-		private readonly IDescriptionTest _descriptionTest;
 
-		public DescriptionTest(ITestOutputHelper testOutputHelper)
+		private readonly IBassicAssignTest _bassicAssignTest;
+
+		public ExtensibleInterceptorTest(ITestOutputHelper testOutputHelper)
 		{
 			XUnitLogger.RegisterLogger(testOutputHelper, LogLevel.Verbose);
-			_descriptionTest = InterceptorFactory.New<IDescriptionTest>();
+			_bassicAssignTest = InterceptorFactory.New<IBassicAssignTest>();
 		}
 
 		[Fact]
 		public void TestDescriptionAttribute()
 		{
-			var description = _descriptionTest.DescriptionFor(x => x.Name);
-			Assert.Equal(TestDescription, description);
-			description = _descriptionTest.DescriptionFor("Name");
-			Assert.Equal(TestDescription, description);
+			// Test the IExtensibleInterceptor
+			// ReSharper disable once SuspiciousTypeConversion.Global
+			var extensibleInterceptor = _bassicAssignTest as IExtensibleInterceptor;
+			// ReSharper disable once PossibleNullReferenceException
+			var description = extensibleInterceptor.Description("Name");
+			Assert.Equal(description, TestDescription);
+		}
+
+		[Fact]
+		public void TestProperties()
+		{
+			// Test the IExtensibleInterceptor
+			// ReSharper disable once SuspiciousTypeConversion.Global
+			var extensibleInterceptor = _bassicAssignTest as IExtensibleInterceptor;
+			// ReSharper disable once PossibleNullReferenceException
+			var properties = extensibleInterceptor.Properties;
+			_bassicAssignTest.Name = "Robin";
+			Assert.True(properties.Count == 1);
+		}
+
+		[Fact]
+		public void TestInterceptedType()
+		{
+			// Test the IExtensibleInterceptor
+			// ReSharper disable once SuspiciousTypeConversion.Global
+			var extensibleInterceptor = _bassicAssignTest as IExtensibleInterceptor;
+			// ReSharper disable once PossibleNullReferenceException
+			Assert.Equal(typeof(IBassicAssignTest), extensibleInterceptor.InterceptedType);
 		}
 	}
 }

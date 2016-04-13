@@ -63,10 +63,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IlTypeBuilderTest.cs" />
+    <Compile Include="ExtensibleInterceptorTest.cs" />
     <Compile Include="BasicAssignTest.cs" />
     <Compile Include="HasChangesTests.cs" />
     <Compile Include="DefaultValueTest.cs" />
     <Compile Include="DescriptionTest.cs" />
+    <Compile Include="Interfaces\ISimpleTypeTest.cs" />
     <Compile Include="Interfaces\IBassicAssignTest.cs" />
     <Compile Include="Interfaces\IHasChangesTest.cs" />
     <Compile Include="Interfaces\IDefaultValueTest.cs" />
