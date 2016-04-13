@@ -62,6 +62,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// </summary>
 		public override void Initialize()
 		{
+			base.Initialize();
+
 			Interceptor.RegisterSetter((int) CallOrder.First, TransactionalSetter);
 			Interceptor.RegisterGetter((int) CallOrder.First, TransactionalGetter);
 

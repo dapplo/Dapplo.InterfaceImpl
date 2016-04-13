@@ -47,7 +47,7 @@ namespace Dapplo.InterfaceImpl.Tests
 		[Fact]
 		public void TestDefaultValue()
 		{
-			Assert.Equal(_defaultValueTest.Age, 21);
+			Assert.Equal(21, _defaultValueTest.Age);
 			Assert.Equal(3, _defaultValueTest.Ages.Count);
 		}
 
@@ -55,9 +55,18 @@ namespace Dapplo.InterfaceImpl.Tests
 		public void TestDefaultValueAtrribute()
 		{
 			var defaultValue = _defaultValueTest.DefaultValueFor(x => x.Age);
-			Assert.Equal(defaultValue, 21);
+			Assert.Equal(21, defaultValue);
 			defaultValue = _defaultValueTest.DefaultValueFor("Age");
-			Assert.Equal(defaultValue, 21);
+			Assert.Equal(21, defaultValue);
+		}
+
+		[Fact]
+		public void TestRestoreToDefaultValue()
+		{
+			_defaultValueTest.Age = 22;
+			Assert.Equal(22, _defaultValueTest.Age);
+			_defaultValueTest.RestoreToDefault(x => x.Age);
+			Assert.Equal(21, _defaultValueTest.Age);
 		}
 
 		[Fact]

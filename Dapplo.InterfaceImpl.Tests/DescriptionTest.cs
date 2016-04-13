@@ -49,6 +49,13 @@ namespace Dapplo.InterfaceImpl.Tests
 			Assert.Equal(description, TestDescription);
 			description = _descriptionTest.DescriptionFor("Name");
 			Assert.Equal(description, TestDescription);
+
+			// Test the IExtensibleInterceptor
+			// ReSharper disable once SuspiciousTypeConversion.Global
+			var extensibleInterceptor = _descriptionTest as IExtensibleInterceptor;
+			// ReSharper disable once PossibleNullReferenceException
+			description = extensibleInterceptor.Description("Name");
+			Assert.Equal(description, TestDescription);
 		}
 	}
 }

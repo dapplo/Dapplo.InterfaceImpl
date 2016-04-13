@@ -50,6 +50,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// </summary>
 		public override void Initialize()
 		{
+			base.Initialize();
+
 			Interceptor.RegisterMethod("add_PropertyChanged", AddPropertyChanged);
 			Interceptor.RegisterMethod("remove_PropertyChanged", RemovePropertyChanged);
 			// Register the NotifyPropertyChangedSetter as a last setter, it will call the NPC event
@@ -70,9 +72,9 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
 			{
 				var propertyChangedEventArgs = new PropertyChangedEventArgs(setInfo.PropertyName);
-				if (Config.EventDispatcher != null && !Config.EventDispatcher.CheckAccess())
+				if (InterfaceImplConfig.EventDispatcher != null && !InterfaceImplConfig.EventDispatcher.CheckAccess())
 				{
-					Config.EventDispatcher.BeginInvoke(PropertyChanged, this, propertyChangedEventArgs);
+					InterfaceImplConfig.EventDispatcher.BeginInvoke(PropertyChanged, this, propertyChangedEventArgs);
 				}
 				else
 				{

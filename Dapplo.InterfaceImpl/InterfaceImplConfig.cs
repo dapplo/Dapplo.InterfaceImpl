@@ -21,38 +21,24 @@
 
 #region using
 
-using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Utils.Extensions;
+#endregion
+
+#region using
+
+using System.Windows.Threading;
 
 #endregion
 
-namespace Dapplo.InterfaceImpl.Extensions.Implementation
+namespace Dapplo.InterfaceImpl
 {
 	/// <summary>
-	///     This implements logic to set the default values on your property interface.
+	///     Used to configure some of the behavior of Dapplo.Config
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[Extension(typeof (IDescription))]
-	internal class DescriptionExtension<T> : AbstractInterceptorExtension
+	public static class InterfaceImplConfig
 	{
 		/// <summary>
-		///     Return the description for a property
+		///     If this is set, it will be used to dispatch events (like PropertyChanged)
 		/// </summary>
-		private void GetDescription(MethodCallInfo methodCallInfo)
-		{
-			var propertyInfo = typeof (T).GetProperty(methodCallInfo.PropertyNameOf(0));
-			methodCallInfo.ReturnValue = propertyInfo.GetDescription();
-		}
-
-		/// <summary>
-		///     Register methods
-		/// </summary>
-		public override void Initialize()
-		{
-			base.Initialize();
-
-			// this registers one method and the overloading is handled in the GetDescription
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IDescription>(x => x.DescriptionFor("")), GetDescription);
-		}
+		public static Dispatcher EventDispatcher { get; set; }
 	}
 }

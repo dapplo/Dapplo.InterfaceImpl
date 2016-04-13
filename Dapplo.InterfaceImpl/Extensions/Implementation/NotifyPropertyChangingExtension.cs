@@ -50,6 +50,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// </summary>
 		public override void Initialize()
 		{
+			base.Initialize();
+
 			Interceptor.RegisterMethod("add_PropertyChanging", AddPropertyChanging);
 			Interceptor.RegisterMethod("remove_PropertyChanging", RemovePropertyChanging);
 			// Register the NotifyPropertyChangingSetter as a last setter, it will call the NotifyPropertyChanging event
@@ -70,10 +72,10 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
 			{
 				var propertyChangingEventArgs = new PropertyChangingEventArgs(setInfo.PropertyName);
-				if (Config.EventDispatcher != null && !Config.EventDispatcher.CheckAccess())
+				if (InterfaceImplConfig.EventDispatcher != null && !InterfaceImplConfig.EventDispatcher.CheckAccess())
 				{
 					// Use invoke to make sure the rest of the code is waiting.
-					Config.EventDispatcher.Invoke(PropertyChanging, this, propertyChangingEventArgs);
+					InterfaceImplConfig.EventDispatcher.Invoke(PropertyChanging, this, propertyChangingEventArgs);
 				}
 				else
 				{

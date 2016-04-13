@@ -68,6 +68,17 @@ namespace Dapplo.InterfaceImpl.Tests
 		}
 
 		[Fact]
+		public void TestRemoveWriteProtect()
+		{
+			_writeProtectTest.StartWriteProtecting();
+			_writeProtectTest.Age = 30;
+			Assert.True(_writeProtectTest.IsWriteProtected(x => x.Age));
+
+			_writeProtectTest.RemoveWriteProtection();
+			Assert.False(_writeProtectTest.IsWriteProtected(x => x.Age));
+		}
+
+		[Fact]
 		public void TestWriteProtect()
 		{
 			_writeProtectTest.StartWriteProtecting();

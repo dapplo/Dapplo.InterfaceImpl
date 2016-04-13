@@ -21,24 +21,36 @@
 
 #region using
 
+using Dapplo.InterfaceImpl.Tests.Interfaces;
+using Dapplo.InterfaceImpl.Tests.Logger;
+using Dapplo.LogFacade;
+using Xunit;
+using Xunit.Abstractions;
+
 #endregion
 
-#region using
-
-using System.Windows.Threading;
-
-#endregion
-
-namespace Dapplo.InterfaceImpl
+namespace Dapplo.InterfaceImpl.Tests
 {
 	/// <summary>
-	///     Used to configure some of the behavior of Dapplo.Config
+	///     Test case to show how the HasChanges works
 	/// </summary>
-	public static class Config
+	public class HasChangesTests
 	{
-		/// <summary>
-		///     If this is set, it will be used to dispatch events (like PropertyChanged)
-		/// </summary>
-		public static Dispatcher EventDispatcher { get; set; }
+		private readonly IHasChangesTest _hasChangesTest;
+
+		public HasChangesTests(ITestOutputHelper testOutputHelper)
+		{
+			XUnitLogger.RegisterLogger(testOutputHelper, LogLevel.Verbose);
+			_hasChangesTest = InterceptorFactory.New<IHasChangesTest>();
+		}
+
+		[Fact]
+		public void TestHasChanges()
+		{
+			_hasChangesTest.SayMyName = "Robin";
+			Assert.True(_hasChangesTest.HasChanges());
+			_hasChangesTest.ResetHasChanges();
+			Assert.False(_hasChangesTest.HasChanges());
+		}
 	}
 }

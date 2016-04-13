@@ -64,9 +64,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicAssignTest.cs" />
+    <Compile Include="HasChangesTests.cs" />
     <Compile Include="DefaultValueTest.cs" />
     <Compile Include="DescriptionTest.cs" />
     <Compile Include="Interfaces\IBassicAssignTest.cs" />
+    <Compile Include="Interfaces\IHasChangesTest.cs" />
     <Compile Include="Interfaces\IDefaultValueTest.cs" />
     <Compile Include="Interfaces\IDefaultValueWithErrorTest.cs" />
     <Compile Include="Interfaces\IDescriptionTest.cs" />

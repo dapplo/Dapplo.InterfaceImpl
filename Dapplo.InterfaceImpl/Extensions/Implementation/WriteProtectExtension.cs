@@ -55,6 +55,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// </summary>
 		public override void Initialize()
 		{
+			base.Initialize();
+
 			Interceptor.RegisterSetter((int) CallOrder.First, WriteProtectSetter);
 
 			// Use Lambdas to make refactoring possible

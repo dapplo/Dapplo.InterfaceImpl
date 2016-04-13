@@ -150,13 +150,16 @@ namespace Dapplo.InterfaceImpl
 				{
 					baseType = baseType.MakeGenericType(interfaceType);
 				}
+
+				// Build a name for the type
 				var typeName = interfaceType.Name + "Impl";
 				// Remove "I" at the start
 				if (typeName.StartsWith("I"))
 				{
 					typeName = typeName.Substring(1);
 				}
-				implementingType = IlTypeBuilder.CreateType(typeName, implementingInterfaces.ToArray(), baseType);
+				var fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, typeName);
+				implementingType = IlTypeBuilder.CreateType(fqTypeName, implementingInterfaces.ToArray(), baseType);
 
 				// Register the implementation for the interface
 				DefineImplementationTypeForInterface(interfaceType, implementingType);

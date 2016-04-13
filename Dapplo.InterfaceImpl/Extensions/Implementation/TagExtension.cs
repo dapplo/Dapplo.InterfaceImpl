@@ -63,6 +63,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// </summary>
 		public override void Initialize()
 		{
+			base.Initialize();
+
 			// Use Lambda to make refactoring possible, this registers one method and the overloading is handled in the IsTaggedWith
 			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITagging>(x => x.IsTaggedWith("", null)), IsTaggedWith);
 			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITagging>(x => x.GetTagValue("", null)), GetTagValue);

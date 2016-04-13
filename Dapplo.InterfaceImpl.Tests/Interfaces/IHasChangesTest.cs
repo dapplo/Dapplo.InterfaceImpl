@@ -21,38 +21,19 @@
 
 #region using
 
-using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Utils.Extensions;
+using System.Collections.Generic;
+using System.ComponentModel;
+using Dapplo.InterfaceImpl.Extensions;
 
 #endregion
 
-namespace Dapplo.InterfaceImpl.Extensions.Implementation
+namespace Dapplo.InterfaceImpl.Tests.Interfaces
 {
 	/// <summary>
-	///     This implements logic to set the default values on your property interface.
+	///     This is the interface under test
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	[Extension(typeof (IDescription))]
-	internal class DescriptionExtension<T> : AbstractInterceptorExtension
+	public interface IHasChangesTest : IHasChanges
 	{
-		/// <summary>
-		///     Return the description for a property
-		/// </summary>
-		private void GetDescription(MethodCallInfo methodCallInfo)
-		{
-			var propertyInfo = typeof (T).GetProperty(methodCallInfo.PropertyNameOf(0));
-			methodCallInfo.ReturnValue = propertyInfo.GetDescription();
-		}
-
-		/// <summary>
-		///     Register methods
-		/// </summary>
-		public override void Initialize()
-		{
-			base.Initialize();
-
-			// this registers one method and the overloading is handled in the GetDescription
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IDescription>(x => x.DescriptionFor("")), GetDescription);
-		}
+		string SayMyName { get; set; }
 	}
 }
