@@ -32,6 +32,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	/// <summary>
 	///     This class implements the NotifyPropertyChanged extension logic,
 	///     which automatically generates NotifyPropertyChanged events when set is called.
+	/// Note: The event is running with UiContext.RunOn unless InterfaceImplConfig.UseUiContextRunOnForEvents is set to false.
 	/// </summary>
 	[Extension(typeof (INotifyPropertyChanged))]
 	internal class NotifyPropertyChangedExtension : AbstractInterceptorExtension

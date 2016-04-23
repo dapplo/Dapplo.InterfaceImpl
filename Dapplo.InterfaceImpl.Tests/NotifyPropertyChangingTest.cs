@@ -48,6 +48,8 @@ namespace Dapplo.InterfaceImpl.Tests
 		[Fact]
 		public void TestNotifyPropertyChanging()
 		{
+			// Without this, the test-case will fail
+			InterfaceImplConfig.UseUiContextRunOnForEvents = false;
 			string changingPropertyName = null;
 
 			var propChanging = new PropertyChangingEventHandler((sender, eventArgs) => { changingPropertyName = eventArgs.PropertyName; });
@@ -55,6 +57,8 @@ namespace Dapplo.InterfaceImpl.Tests
 			// Test event handler
 			_notifyPropertyChangingTest.PropertyChanging += propChanging;
 			_notifyPropertyChangingTest.Name = TestValue1;
+
+			// Event can't be called on a task, otherwise this would fail
 			Assert.Equal("Name", changingPropertyName);
 
 			// Ensure that if the value is the same, we don't get an event

@@ -50,8 +50,10 @@ namespace Dapplo.InterfaceImpl.Tests
 		[WpfFact]
 		public async Task TestNotifyPropertyChanged_Wpf()
 		{
+			InterfaceImplConfig.UseUiContextRunOnForEvents = true;
 			UiContext.Initialize();
 			Assert.NotNull(UiContext.UiTaskScheduler);
+			Assert.True(InterfaceImplConfig.UseUiContextRunOnForEvents);
 
 			string changedPropertyName = null;
 			var propChanged = new PropertyChangedEventHandler((sender, eventArgs) =>
@@ -91,7 +93,7 @@ namespace Dapplo.InterfaceImpl.Tests
 		public void TestNotifyPropertyChanged()
 		{
 			string changedPropertyName = null;
-
+			InterfaceImplConfig.UseUiContextRunOnForEvents = false;
 			var propChanged = new PropertyChangedEventHandler((sender, eventArgs) => { changedPropertyName = eventArgs.PropertyName; });
 
 			// Test event handler

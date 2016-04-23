@@ -3,6 +3,7 @@
 - Documentation can be found [here](http://www.dapplo.net/blocks/Dapplo.InterfaceImpl) (soon)
 - Current build status: [![Build status](https://ci.appveyor.com/api/projects/status/rskeg5hqeu9k2crs?svg=true)](https://ci.appveyor.com/project/dapplo/dapplo-interfaceimpl)
 - Coverage Status: [![Coverage Status](https://coveralls.io/repos/github/dapplo/Dapplo.InterfaceImpl/badge.svg?branch=master)](https://coveralls.io/github/dapplo/Dapplo.InterfaceImpl?branch=master)
+- NuGet package: [![NuGet package](https://badge.fury.io/nu/Dapplo.InterfaceImpl.svg)](https://badge.fury.io/nu/Dapplo.InterfaceImpl)
 
 ## Additional functionality
 

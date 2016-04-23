@@ -32,6 +32,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	/// <summary>
 	///     This class implements the NotifyPropertyChanging extension logic,
 	///     which automatically generates NotifyPropertyChanging events when set is called.
+	///     Note: The event is running with UiContext.RunOn unless InterfaceImplConfig.UseUiContextRunOnForEvents is set to
+	///     false.
 	/// </summary>
 	[Extension(typeof (INotifyPropertyChanging))]
 	internal class NotifyPropertyChangingExtension : AbstractInterceptorExtension
@@ -76,10 +78,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				// Test if the event needs to run on in the UiContext
 				if (InterfaceImplConfig.UseUiContextRunOnForEvents)
 				{
-					UiContext.RunOn(() =>
-					{
-						PropertyChanging(Interceptor, propertyChangingEventArgs);
-					});
+					UiContext.RunOn(() => { PropertyChanging(Interceptor, propertyChangingEventArgs); });
 				}
 				else
 				{
