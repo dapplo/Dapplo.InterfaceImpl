@@ -18,10 +18,10 @@ before_build:
   - nuget restore
   - ps: if(-not $env:APPVEYOR_PULL_REQUEST_NUMBER) { $env:is_not_pr = "true"; }
 before_package:
-   - ps: Remove-Item packages\OpenCover* -include ("*.pdb", "*.sln", "*.csproj") -recurse
-   - GitLink .\
+  - ps: Remove-Item packages\OpenCover* -include ("*.pdb", "*.sln", "*.csproj") -recurse
+  - GitLink .\
 after_test: 
-    - ps: .\CreateCoverage.ps1
+  - ps: .\CreateCoverage.ps1
 environment:
   COVERALLS_REPO_TOKEN:
     secure: n/N6BlvDKmDfYC/qkGfkV64Kus6obdGAPBhnaIEHKRuk6FUBbnb/8/d+VkzZ+z/7

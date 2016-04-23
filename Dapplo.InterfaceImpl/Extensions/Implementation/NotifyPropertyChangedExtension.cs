@@ -23,6 +23,7 @@
 
 using System.ComponentModel;
 using Dapplo.InterfaceImpl.Implementation;
+using Dapplo.Utils;
 
 #endregion
 
@@ -72,9 +73,13 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
 			{
 				var propertyChangedEventArgs = new PropertyChangedEventArgs(setInfo.PropertyName);
-				if (InterfaceImplConfig.EventDispatcher != null && !InterfaceImplConfig.EventDispatcher.CheckAccess())
+				// Test if the event needs to run on in the UiContext
+				if (InterfaceImplConfig.UseUiContextRunOnForEvents)
 				{
-					InterfaceImplConfig.EventDispatcher.BeginInvoke(PropertyChanged, this, propertyChangedEventArgs);
+					UiContext.RunOn(() =>
+					{
+						PropertyChanged(Interceptor, propertyChangedEventArgs);
+					});
 				}
 				else
 				{

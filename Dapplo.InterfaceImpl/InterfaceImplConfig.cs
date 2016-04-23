@@ -25,7 +25,6 @@
 
 #region using
 
-using System.Windows.Threading;
 
 #endregion
 
@@ -37,8 +36,9 @@ namespace Dapplo.InterfaceImpl
 	public static class InterfaceImplConfig
 	{
 		/// <summary>
-		///     If this is set, it will be used to dispatch events (like PropertyChanged)
+		/// Specify if events are invoked via UiContext.RunOn
+		/// e.g. NotifyPropertyChanged
 		/// </summary>
-		public static Dispatcher EventDispatcher { get; set; }
+		public static bool UseUiContextRunOnForEvents { get; set; } = true;
 	}
 }
