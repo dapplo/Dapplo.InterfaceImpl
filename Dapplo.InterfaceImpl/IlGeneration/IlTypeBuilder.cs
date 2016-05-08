@@ -74,19 +74,23 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 				baseType, implementingInterfaces);
 
 			// Make a collection of already implemented properties
-			var baseProperties = baseType.GetRuntimeProperties().Select(x => x.Name);
+			var baseProperties = baseType.GetRuntimeProperties().Select(x => x.Name).ToList();
 
 			var propertyInfos =
 				from iface in implementingInterfaces
 				from propertyInfo in iface.GetProperties()
-				where !baseProperties.Contains(propertyInfo.Name)
 				select propertyInfo;
 
 			foreach (var propertyInfo in propertyInfos)
 			{
+				if (baseProperties.Contains(propertyInfo.Name))
+				{
+					Log.Verbose().WriteLine("Skipping property {0}, as the base class implements this.", propertyInfo.Name);
+					continue;
+				}
 				if (!propertyInfo.CanRead && !propertyInfo.CanWrite)
 				{
-					Log.Verbose().WriteLine("Skipping property {0}", propertyInfo.Name);
+					Log.Verbose().WriteLine("Skipping property {0} as it cannot be read or written.", propertyInfo.Name);
 					continue;
 				}
 
@@ -95,16 +99,20 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			}
 
 			// Make a collection of already implemented method
-			var baseMethods = baseType.GetRuntimeMethods().Select(x => x.Name);
+			var baseMethods = baseType.GetRuntimeMethods().Select(x => x.Name).ToList();
 
 			var methodInfos =
 				from iface in implementingInterfaces
 				from methodInfo in iface.GetMethods()
-				where !baseMethods.Contains(methodInfo.Name)
 				select methodInfo;
 
 			foreach (var methodInfo in methodInfos)
 			{
+				if (baseMethods.Contains(methodInfo.Name))
+				{
+					Log.Verbose().WriteLine("Skipping method {0}, as the base class implements this.", methodInfo.Name);
+					continue;
+				}
 				if (methodInfo.Name.StartsWith("get_") || methodInfo.Name.StartsWith("set_"))
 				{
 					Log.Verbose().WriteLine("Skipping method {0}", methodInfo.Name);

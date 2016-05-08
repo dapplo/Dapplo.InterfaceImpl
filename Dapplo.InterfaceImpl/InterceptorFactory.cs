@@ -43,7 +43,7 @@ namespace Dapplo.InterfaceImpl
 		private static readonly IDictionary<Type, Type> TypeMap = new Dictionary<Type, Type>();
 		private static readonly IDictionary<Type, Type> BaseTypeMap = new Dictionary<Type, Type>();
 		private static readonly IDictionary<Type, Type[]> DefaultInterfacesMap = new Dictionary<Type, Type[]>();
-		private static readonly IlTypeBuilder TypeBuilder = new IlTypeBuilder(false);
+		private static readonly IlTypeBuilder TypeBuilder = new IlTypeBuilder();
 
 		static InterceptorFactory()
 		{

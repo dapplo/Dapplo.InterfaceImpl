@@ -115,6 +115,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			var allPropertyInfos = (from interfaceType in interfacesToCheck
 				where interfaceType.Assembly != thisAssembly
 				from propertyInfo in interfaceType.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public)
+				where propertyInfo.GetIndexParameters().Length == 0
 				select propertyInfo).GroupBy(p => p.Name).Select(group => group.First());
 
 			foreach (var propertyInfo in allPropertyInfos)
@@ -200,6 +201,21 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// </summary>
 		public Type InterceptedType => typeof (T);
 
+		/// <summary>
+		///     Get the value for a property.
+		/// Note: This needs to be virtual otherwise the interface isn't implemented
+		/// </summary>
+		/// <param name="key">string with key for the property to get</param>
+		/// <returns>object or null if not available</returns>
+		public virtual object this[string key]
+		{
+			get
+			{
+				object value;
+				Properties.TryGetValue(key, out value);
+				return value;
+			}
+		}
 
 		/// <summary>
 		///     Register a method for the proxy
@@ -259,7 +275,11 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <param name="propertyName">Name of the property</param>
 		public GetInfo Get(string propertyName)
 		{
-			var propertyType = PropertyTypes[propertyName];
+			Type propertyType;
+			if (!PropertyTypes.TryGetValue(propertyName, out propertyType))
+			{
+				propertyType = typeof(object);
+			}
 
 			object value;
 			var hasValue = _properties.TryGetValue(propertyName, out value);
@@ -378,8 +398,12 @@ namespace Dapplo.InterfaceImpl.Implementation
 			else
 			{
 				// Make sure we return the right default value, when passed by-ref there needs to be a value
-				var propType = PropertyTypes[getInfo.PropertyName];
-				getInfo.Value = propType.CreateInstance();
+				Type propertyType;
+				if (!PropertyTypes.TryGetValue(getInfo.PropertyName, out propertyType))
+				{
+					propertyType = typeof(object);
+				}
+				getInfo.Value = propertyType.CreateInstance();
 				getInfo.HasValue = false;
 			}
 		}
