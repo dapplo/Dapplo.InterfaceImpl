@@ -114,7 +114,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			// "user" code introduced in the type. (e.g skip all types & properties from this assembly)
 			var allPropertyInfos = (from interfaceType in interfacesToCheck
 				where interfaceType.Assembly != thisAssembly
-				from propertyInfo in interfaceType.GetProperties()
+				from propertyInfo in interfaceType.GetProperties(BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public)
 				select propertyInfo).GroupBy(p => p.Name).Select(group => group.First());
 
 			foreach (var propertyInfo in allPropertyInfos)

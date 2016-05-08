@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	[Extension(typeof (IDefaultValue))]
 	internal class DefaultValueExtension<T> : AbstractInterceptorExtension
 	{
-		private static readonly LogSource Log = new LogSource();
+		private readonly LogSource _log = new LogSource();
 
 		/// <summary>
 		///     Make sure this extension is initialized first
@@ -129,7 +129,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			}
 			catch (Exception ex)
 			{
-				Log.Warn().WriteLine(ex.Message);
+				_log.Warn().WriteLine(ex.Message);
 				// Store the exception so it can be used
 				exception = ex;
 			}
@@ -139,24 +139,15 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				Interceptor.Set(propertyInfo.Name, defaultValue);
 				return;
 			}
-			if (!propertyInfo.PropertyType.IsInterface && !propertyInfo.PropertyType.IsByRef && propertyInfo.PropertyType != typeof (string))
+			try
 			{
-				try
-				{
-					defaultValue = propertyInfo.PropertyType.CreateInstance();
-					Interceptor.Set(propertyInfo.Name, defaultValue);
-					return;
-				}
-				catch (Exception ex)
-				{
-					// Ignore creating the default type, this might happen if there is no default constructor.
-					Log.Warn().WriteLine(ex.Message);
-				}
+				defaultValue = propertyInfo.PropertyType.CreateInstance();
+				Interceptor.Set(propertyInfo.Name, defaultValue);
 			}
-			if (Interceptor.Properties.ContainsKey(propertyInfo.Name))
+			catch (Exception ex)
 			{
-				// TODO: This doesn't create a NotifyPropertyChanged/ing event as set isn't called.
-				Interceptor.Properties.Remove(propertyInfo.Name);
+				// Ignore creating the default type, this might happen if there is no default constructor.
+				_log.Warn().WriteLine(ex.Message);
 			}
 		}
 	}
