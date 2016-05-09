@@ -61,6 +61,13 @@ namespace Dapplo.InterfaceImpl
 		IReadOnlyDictionary<string, Type> PropertyTypes { get; }
 
 		/// <summary>
+		/// Retrieve the real Property name, if you only have a key whích isn't exact
+		/// </summary>
+		/// <param name="possibleProperyName">Possible property name, like without capitals etc</param>
+		/// <returns>The real property name</returns>
+		string PropertyNameFor(string possibleProperyName);
+
+		/// <summary>
 		///     Add extension to the interceptor
 		/// </summary>
 		/// <param name="extensionType"></param>

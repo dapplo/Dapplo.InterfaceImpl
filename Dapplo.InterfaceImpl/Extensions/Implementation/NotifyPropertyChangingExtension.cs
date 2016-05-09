@@ -74,7 +74,14 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			// Create the event if the property is changing
 			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
 			{
-				var propertyChangingEventArgs = new PropertyChangingEventArgs(setInfo.PropertyName);
+				// Find the real property name
+				var propertyName = Interceptor.PropertyNameFor(setInfo.PropertyName);
+				if (propertyName == null)
+				{
+					return;
+				}
+
+				var propertyChangingEventArgs = new PropertyChangingEventArgs(propertyName);
 				// Test if the event needs to run on in the UiContext
 				if (InterfaceImplConfig.UseUiContextRunOnForEvents)
 				{

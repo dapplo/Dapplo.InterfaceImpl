@@ -41,10 +41,13 @@ namespace Dapplo.InterfaceImpl.Implementation
 	{
 		// ReSharper disable once StaticMemberInGenericType
 		private static readonly LogSource Log = new LogSource();
+		// ReSharper disable once StaticMemberInGenericType
+		private static readonly AbcComparer AbcComparerInstance = new AbcComparer();
+
 		private readonly IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
 		private readonly IList<Getter> _getters = new List<Getter>();
 		private readonly IDictionary<string, List<Action<MethodCallInfo>>> _methodMap = new Dictionary<string, List<Action<MethodCallInfo>>>();
-		private readonly IDictionary<string, object> _properties = new Dictionary<string, object>(new AbcComparer());
+		private readonly IDictionary<string, object> _properties = new Dictionary<string, object>(AbcComparerInstance);
 		private readonly IList<Setter> _setters = new List<Setter>();
 
 		/// <summary>
@@ -107,7 +110,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 				typeof (T)
 			};
 
-			var propertyTypes = new Dictionary<string, Type>(new AbcComparer());
+			var propertyTypes = new Dictionary<string, Type>(AbcComparerInstance);
 			PropertyTypes = new ReadOnlyDictionary<string, Type>(propertyTypes);
 
 			// Now, create an IEnumerable for all the property info of all the properties in the interfaces that the
@@ -172,7 +175,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     If an exception is catched during the initialization, it can be found here
 		/// </summary>
-		public IDictionary<string, Exception> InitializationErrors { get; } = new Dictionary<string, Exception>(new AbcComparer());
+		public IDictionary<string, Exception> InitializationErrors { get; } = new Dictionary<string, Exception>(AbcComparerInstance);
 
 		/// <summary>
 		///     Get type of a property
@@ -216,6 +219,17 @@ namespace Dapplo.InterfaceImpl.Implementation
 				return value;
 			}
 		}
+
+		/// <summary>
+		/// Retrieve the real Property name, if you only have a key whích isn't exact
+		/// </summary>
+		/// <param name="possibleProperyName">Possible property name, like without capitals etc</param>
+		/// <returns>The real property name</returns>
+		public string PropertyNameFor(string possibleProperyName)
+		{
+			return PropertyTypes.Keys.FirstOrDefault(x => AbcComparerInstance.Compare(x, possibleProperyName) == 0);
+		}
+
 
 		/// <summary>
 		///     Register a method for the proxy

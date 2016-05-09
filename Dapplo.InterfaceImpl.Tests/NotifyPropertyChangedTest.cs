@@ -36,6 +36,7 @@ namespace Dapplo.InterfaceImpl.Tests
 {
 	public class NotifyPropertyChangedTest
 	{
+		private static readonly LogSource Log = new LogSource();
 		private const string NoChange = "NOCHANGE";
 		private const string TestValue1 = "VALUE1";
 		private const string TestValue2 = "VALUE2";
@@ -59,6 +60,7 @@ namespace Dapplo.InterfaceImpl.Tests
 			var propChanged = new PropertyChangedEventHandler((sender, eventArgs) =>
 			{
 				changedPropertyName = eventArgs.PropertyName;
+				Log.Debug().WriteLine("Property change notification for {0}", eventArgs.PropertyName);
 			});
 
 			// Test event handler
@@ -94,7 +96,11 @@ namespace Dapplo.InterfaceImpl.Tests
 		{
 			string changedPropertyName = null;
 			InterfaceImplConfig.UseUiContextRunOnForEvents = false;
-			var propChanged = new PropertyChangedEventHandler((sender, eventArgs) => { changedPropertyName = eventArgs.PropertyName; });
+			var propChanged = new PropertyChangedEventHandler((sender, eventArgs) =>
+			{
+				changedPropertyName = eventArgs.PropertyName;
+				Log.Debug().WriteLine("Property change notification for {0}", eventArgs.PropertyName);
+			});
 
 			// Test event handler
 			_notifyPropertyChangedTest.PropertyChanged += propChanged;
