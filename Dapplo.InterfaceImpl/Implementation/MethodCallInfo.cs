@@ -48,10 +48,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     Simple check for the exception
 		/// </summary>
-		public bool HasError
-		{
-			get { return Error != null; }
-		}
+		public bool HasError => Error != null;
 
 		/// <summary>
 		///     Name of the invoked method

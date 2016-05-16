@@ -47,10 +47,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     Simple property to check for error
 		/// </summary>
-		public bool HasError
-		{
-			get { return Error != null; }
-		}
+		public bool HasError => Error != null;
 
 		/// <summary>
 		///     Property name of the property that is being get/set
