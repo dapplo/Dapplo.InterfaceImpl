@@ -121,7 +121,7 @@ namespace Dapplo.InterfaceImpl
 				throw new ArgumentException("Only interfaces are allowed.", nameof(interfaceType));
 			}
 			// GetInterfaces doesn't return the type itself, so we need to add it.
-			var implementingInterfaces = interfaceType.GetInterfaces().Concat(new[] {interfaceType}).ToList();
+			var implementingInterfaces = new[] { interfaceType }.Concat(interfaceType.GetInterfaces()).ToList();
 
 			var implementingAndDefaultInterfaces = new List<Type>();
 			foreach (var implementingInterface in implementingInterfaces.ToList())

@@ -105,10 +105,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			var thisAssembly = GetType().Assembly;
 
 			// as GetInterfaces doesn't return the type itself (makes sense), the following 2 lines makes a list of all
-			var interfacesToCheck = new List<Type>(typeof (T).GetInterfaces())
-			{
-				typeof (T)
-			};
+			var interfacesToCheck = new[] { typeof(T) }.Concat(typeof(T).GetInterfaces()).ToList();
 
 			var propertyTypes = new Dictionary<string, Type>(AbcComparerInstance);
 			PropertyTypes = new ReadOnlyDictionary<string, Type>(propertyTypes);

@@ -52,6 +52,13 @@ namespace Dapplo.InterfaceImpl.Tests
 		}
 
 		[Fact]
+		public void TestDefaultValueOverwrite()
+		{
+			var defaultValueOverwriteTest = InterceptorFactory.New<IDefaultValueOverwriteTest>();
+			Assert.Equal(42, defaultValueOverwriteTest.Age);
+		}
+
+		[Fact]
 		public void TestDefaultValueAtrribute()
 		{
 			var defaultValue = _defaultValueTest.DefaultValueFor(x => x.Age);
