@@ -19,6 +19,10 @@
 //  You should have a copy of the GNU Lesser General Public License
 //  along with Dapplo.InterfaceImpl. If not, see <http://www.gnu.org/licenses/lgpl.txt>.
 
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+
 namespace Dapplo.InterfaceImpl.Extensions
 {
 	/// <summary>
@@ -37,5 +41,33 @@ namespace Dapplo.InterfaceImpl.Extensions
 		///     Reset the has changes flag
 		/// </summary>
 		void ResetHasChanges();
+
+		/// <summary>
+		/// Retrieve all changes, 
+		/// </summary>
+		/// <returns>ISet with the property values</returns>
+		ISet<string> Changes();
+
+		/// <summary>
+		/// Test if a property has been changed since the last reset
+		/// </summary>
+		/// <param name="propertyName"></param>
+		/// <returns>bool</returns>
+		bool IsChanged(string propertyName);
+	}
+
+	/// <summary>
+	/// This is the generic version of IHasChanges, which supports property expressions
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	public interface IHasChanges<T> : IHasChanges
+	{
+		/// <summary>
+		/// Generic version of IsChanged which supports property expressions
+		/// </summary>
+		/// <typeparam name="TProp">Expression which supplies the property name</typeparam>
+		/// <param name="propertyExpression"></param>
+		/// <returns>bool</returns>
+		bool IsChanged<TProp>(Expression<Func<T, TProp>> propertyExpression);
 	}
 }

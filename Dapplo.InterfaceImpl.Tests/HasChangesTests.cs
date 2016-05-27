@@ -49,8 +49,14 @@ namespace Dapplo.InterfaceImpl.Tests
 		{
 			_hasChangesTest.SayMyName = "Robin";
 			Assert.True(_hasChangesTest.HasChanges());
+			Assert.True(_hasChangesTest.IsChanged(nameof(_hasChangesTest.SayMyName)));
+			Assert.True(_hasChangesTest.IsChanged(x => x.SayMyName));
+			Assert.True(_hasChangesTest.Changes().Contains(nameof(_hasChangesTest.SayMyName)));
 			_hasChangesTest.ResetHasChanges();
 			Assert.False(_hasChangesTest.HasChanges());
+			Assert.False(_hasChangesTest.IsChanged(nameof(_hasChangesTest.SayMyName)));
+			Assert.False(_hasChangesTest.IsChanged(x => x.SayMyName));
+			Assert.False(_hasChangesTest.Changes().Contains(nameof(_hasChangesTest.SayMyName)));
 		}
 	}
 }

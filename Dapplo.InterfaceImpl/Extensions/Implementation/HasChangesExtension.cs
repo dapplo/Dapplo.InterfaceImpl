@@ -22,7 +22,9 @@
 #region using
 
 using Dapplo.InterfaceImpl.Implementation;
+using Dapplo.Utils;
 using Dapplo.Utils.Extensions;
+using System.Collections.Generic;
 
 #endregion
 
@@ -35,7 +37,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	internal class HasChangesExtension : AbstractInterceptorExtension
 	{
 		// This boolean has the value true if we have changes sind the last "reset"
-		private bool _hasChanges;
+		private ISet<string> _changedValues = new HashSet<string>(new AbcComparer());
 
 		/// <summary>
 		///     This returns true if we have set (changed) values
@@ -43,7 +45,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <param name="methodCallInfo">MethodCallInfo</param>
 		private void HasChanges(MethodCallInfo methodCallInfo)
 		{
-			methodCallInfo.ReturnValue = _hasChanges;
+			methodCallInfo.ReturnValue = _changedValues.Count > 0;
 		}
 
 		/// <summary>
@@ -52,7 +54,10 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <param name="setInfo">SetInfo with all the information on the set call</param>
 		private void HasChangesSetter(SetInfo setInfo)
 		{
-			_hasChanges = !setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue);
+			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
+			{
+				_changedValues.Add(setInfo.PropertyName.ToLowerInvariant());
+			}
 		}
 
 		/// <summary>
@@ -67,6 +72,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			// Use Lambdas to make refactoring possible
 			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.ResetHasChanges()), ResetHasChanges);
 			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.HasChanges()), HasChanges);
+			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.IsChanged("")), IsChanged);
+			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.Changes()), Changes);
 		}
 
 		/// <summary>
@@ -75,7 +82,25 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <param name="methodCallInfo">MethodCallInfo</param>
 		private void ResetHasChanges(MethodCallInfo methodCallInfo)
 		{
-			_hasChanges = false;
+			_changedValues.Clear();
+		}
+
+		/// <summary>
+		///    Test if the supplied property was changed
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void IsChanged(MethodCallInfo methodCallInfo)
+		{
+			methodCallInfo.ReturnValue = _changedValues.Contains(methodCallInfo.PropertyNameOf(0).ToLowerInvariant());
+		}
+
+		/// <summary>
+		/// Returns the whole set of changed values, this is a cloned value.
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void Changes(MethodCallInfo methodCallInfo)
+		{
+			methodCallInfo.ReturnValue = new HashSet<string>(_changedValues, new AbcComparer());
 		}
 	}
 }

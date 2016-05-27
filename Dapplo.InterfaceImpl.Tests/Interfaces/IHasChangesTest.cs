@@ -32,7 +32,7 @@ namespace Dapplo.InterfaceImpl.Tests.Interfaces
 	/// <summary>
 	///     This is the interface under test
 	/// </summary>
-	public interface IHasChangesTest : IHasChanges
+	public interface IHasChangesTest : IHasChanges<IHasChangesTest>
 	{
 		string SayMyName { get; set; }
 	}
