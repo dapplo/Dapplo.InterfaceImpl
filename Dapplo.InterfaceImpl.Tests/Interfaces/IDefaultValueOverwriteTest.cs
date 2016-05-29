@@ -21,9 +21,7 @@
 
 #region using
 
-using System.Collections.Generic;
 using System.ComponentModel;
-using Dapplo.InterfaceImpl.Extensions;
 
 #endregion
 
@@ -32,7 +30,7 @@ namespace Dapplo.InterfaceImpl.Tests.Interfaces
 	/// <summary>
 	///     This is the interface under test
 	/// </summary>
-	public interface IDefaultValueOverwriteTest : IDefaultValueTest, IDefaultValue<IDefaultValueTest>
+	public interface IDefaultValueOverwriteTest : IDefaultValueTest
 	{
 		[DefaultValue(42)]
 		new int Age { get; set; }

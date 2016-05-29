@@ -45,8 +45,8 @@ namespace Dapplo.InterfaceImpl.Tests
 		{
 			var typeBuilder = new IlTypeBuilder(true, "Generated.Dapplo.InterfaceImpl.Tests");
 
-			var type = typeBuilder.CreateType("SimpleTypeTest", new[] { typeof (ISimpleTypeTest) } , typeof(object));
-			var tmpFileName = $"MySimpleType.dll";
+			typeBuilder.CreateType("SimpleTypeTest", new[] { typeof (ISimpleTypeTest) } , typeof(object));
+			var tmpFileName = "MySimpleType.dll";
 
 			typeBuilder.SaveAssemblyDll(tmpFileName);
 			Assert.True(File.Exists(tmpFileName));
