@@ -100,7 +100,7 @@ namespace Dapplo.InterfaceImpl
 		public static TResult New<TResult>()
 		{
 			// create the intercepted object
-			return (TResult) New(typeof (TResult));
+			return (TResult)New(typeof(TResult));
 		}
 
 		/// <summary>
@@ -141,22 +141,6 @@ namespace Dapplo.InterfaceImpl
 			{
 				if (!TypeMap.TryGetValue(interfaceType, out implementingType))
 				{
-					// Use this baseType if nothing is specified
-					var baseType = typeof(ExtensibleInterceptorImpl<>);
-					foreach (var implementingInterface in implementingInterfaces)
-					{
-						if (BaseTypeMap.ContainsKey(implementingInterface))
-						{
-							baseType = BaseTypeMap[implementingInterface];
-							break;
-						}
-					}
-					// Make sure we have a non generic type, by filling in the "blanks"
-					if (baseType.IsGenericType)
-					{
-						baseType = baseType.MakeGenericType(interfaceType);
-					}
-
 					// Build a name for the type
 					var typeName = interfaceType.Name + "Impl";
 					// Remove "I" at the start
@@ -164,8 +148,31 @@ namespace Dapplo.InterfaceImpl
 					{
 						typeName = typeName.Substring(1);
 					}
+
 					var fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, typeName);
-					implementingType = TypeBuilder.CreateType(fqTypeName, implementingInterfaces.ToArray(), baseType);
+
+					// Only create it if it was not already created via another way
+					if (!TypeBuilder.TryGetType(fqTypeName, out implementingType))
+					{
+						// Use this baseType if nothing is specified
+						var baseType = typeof(ExtensibleInterceptorImpl<>);
+						foreach (var implementingInterface in implementingInterfaces)
+						{
+							if (BaseTypeMap.ContainsKey(implementingInterface))
+							{
+								baseType = BaseTypeMap[implementingInterface];
+								break;
+							}
+						}
+						// Make sure we have a non generic type, by filling in the "blanks"
+						if (baseType.IsGenericType)
+						{
+							baseType = baseType.MakeGenericType(interfaceType);
+						}
+
+
+						implementingType = TypeBuilder.CreateType(fqTypeName, implementingInterfaces.ToArray(), baseType);
+					}
 
 					// Register the implementation for the interface
 					TypeMap.AddOrOverwrite(interfaceType, implementingType);

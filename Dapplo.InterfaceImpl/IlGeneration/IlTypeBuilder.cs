@@ -59,6 +59,19 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			_moduleBuilder = _assemblyBuilder.DefineDynamicModule(assemblyName.Name, dllName, false);
 		}
 
+
+		/// <summary>
+		/// Checks if this type builder already created the type, or return null if not
+		/// </summary>
+		/// <param name="fqTypeName">The name of the type</param>
+		/// <param name="type">The out variable for the type</param>
+		/// <returns>bool with true if found</returns>
+		public bool TryGetType(string fqTypeName, out Type type)
+		{
+			type = _assemblyBuilder.GetTypes().Where(x => x.FullName == fqTypeName).FirstOrDefault();
+			return type != null;
+		}
+
 		/// <summary>
 		///     Creates an implementation as Type for a given interface, which can be intercepted
 		/// </summary>
