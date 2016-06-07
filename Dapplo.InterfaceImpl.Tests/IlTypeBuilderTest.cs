@@ -28,6 +28,7 @@ using Dapplo.InterfaceImpl.Tests.Logger;
 using Dapplo.LogFacade;
 using Xunit;
 using Xunit.Abstractions;
+using Dapplo.InterfaceImpl.Implementation;
 
 #endregion
 
@@ -43,14 +44,43 @@ namespace Dapplo.InterfaceImpl.Tests
 		[Fact]
 		public void TestSaveAssembly()
 		{
-			var typeBuilder = new IlTypeBuilder(true, "Generated.Dapplo.InterfaceImpl.Tests");
+			var typeBuilder = IlTypeBuilder.CreateOrGet(true, "Generated.Dapplo.InterfaceImpl.Tests");
 
-			typeBuilder.CreateType("SimpleTypeTest", new[] { typeof (ISimpleTypeTest) } , typeof(object));
+			typeBuilder.CreateType("SimpleTypeTest", new[] { typeof (ISimpleTypeTest) });
 			var tmpFileName = "MySimpleType.dll";
 
 			typeBuilder.SaveAssemblyDll(tmpFileName);
 			Assert.True(File.Exists(tmpFileName));
 			File.Delete(tmpFileName);
+		}
+
+		[Fact]
+		public void TestCreateType_Double()
+		{
+			// Create via factory
+			var impl = InterceptorFactory.New<ISimpleTypeTest>();
+
+			var testInterfaceType = typeof(ISimpleTypeTest);
+
+			var typeName = testInterfaceType.Name + "Impl";
+			// Remove "I" at the start
+			if (typeName.StartsWith("I"))
+			{
+				typeName = typeName.Substring(1);
+			}
+
+			var fqTypeName = testInterfaceType.FullName.Replace(testInterfaceType.Name, typeName);
+
+			var baseType = typeof(ExtensibleInterceptorImpl<>);
+			// Make sure we have a non generic type, by filling in the "blanks"
+			if (baseType.IsGenericType)
+			{
+				baseType = baseType.MakeGenericType(testInterfaceType);
+			}
+
+			// Create self
+			var typeBuilder = IlTypeBuilder.CreateOrGet();
+			var createdType = typeBuilder.CreateType(fqTypeName, new[] { testInterfaceType });
 		}
 	}
 }

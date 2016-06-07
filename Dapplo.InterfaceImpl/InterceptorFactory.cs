@@ -28,6 +28,7 @@ using Dapplo.InterfaceImpl.Extensions.Implementation;
 using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Implementation;
 using Dapplo.Utils.Extensions;
+using Dapplo.LogFacade;
 
 #endregion
 
@@ -39,12 +40,16 @@ namespace Dapplo.InterfaceImpl
 	/// </summary>
 	public class InterceptorFactory
 	{
+		private static readonly LogSource Log = new LogSource();
 		private static readonly IList<Type> ExtensionTypes = new List<Type>();
 		private static readonly IDictionary<Type, Type> TypeMap = new Dictionary<Type, Type>();
 		private static readonly IDictionary<Type, Type> BaseTypeMap = new Dictionary<Type, Type>();
 		private static readonly IDictionary<Type, Type[]> DefaultInterfacesMap = new Dictionary<Type, Type[]>();
-		private static readonly IlTypeBuilder TypeBuilder = new IlTypeBuilder();
+		private static readonly IlTypeBuilder TypeBuilder = IlTypeBuilder.CreateOrGet();
 
+		/// <summary>
+		/// Register the known extensions
+		/// </summary>
 		static InterceptorFactory()
 		{
 			RegisterExtension(typeof (DefaultValueExtension<>));
@@ -169,9 +174,11 @@ namespace Dapplo.InterfaceImpl
 						{
 							baseType = baseType.MakeGenericType(interfaceType);
 						}
-
-
 						implementingType = TypeBuilder.CreateType(fqTypeName, implementingInterfaces.ToArray(), baseType);
+					}
+					else
+					{
+						Log.Verbose().WriteLine("Using cached, probably created elsewhere, type: {0}", typeName);
 					}
 
 					// Register the implementation for the interface
@@ -180,11 +187,11 @@ namespace Dapplo.InterfaceImpl
 			}
 
 			// Create an instance for the implementation
-			var interceptor = (IExtensibleInterceptor) Activator.CreateInstance(implementingType);
+			var interceptor = Activator.CreateInstance(implementingType) as IExtensibleInterceptor;
 
 			if (interceptor == null)
 			{
-				throw new ArgumentNullException(nameof(interceptor), "The created type didn't implement IExtensibleInterceptor.");
+				throw new ArgumentNullException(nameof(interceptor), "Internal error, the created type didn't implement IExtensibleInterceptor.");
 			}
 
 			// Add the extensions

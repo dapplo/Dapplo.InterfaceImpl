@@ -21,6 +21,7 @@
 
 #region using
 
+using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.InterfaceImpl.Tests.Logger;
 using Dapplo.LogFacade;

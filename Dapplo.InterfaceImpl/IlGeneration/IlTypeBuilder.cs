@@ -34,22 +34,43 @@ using Dapplo.Utils.Extensions;
 namespace Dapplo.InterfaceImpl.IlGeneration
 {
 	/// <summary>
-	///     Internally used to generate a method via IL
+	/// Use Il to build a type for a specified interface
 	/// </summary>
 	public class IlTypeBuilder
 	{
 		private static readonly LogSource Log = new LogSource();
+		private static readonly IDictionary<Tuple<bool, string>, IlTypeBuilder> _ilTypeBuilderCache = new Dictionary<Tuple<bool, string>, IlTypeBuilder>();
 		private const string DefaultAssemblyNameString = "Dapplo.InterfaceImpl.Generated";
 		private readonly AssemblyBuilder _assemblyBuilder;
 		private readonly ModuleBuilder _moduleBuilder;
 		private readonly bool _allowSave;
 
 		/// <summary>
+		/// IlTypeBuilder factory, returns the DefaultInstance if there is no derrivate
+		/// </summary>
+		/// <param name="allowSave">specify true if you also want to be able to save</param>
+		/// <param name="assemblyNameString">Name of the assembly</param>
+		public static IlTypeBuilder CreateOrGet(bool allowSave = false, string assemblyNameString = DefaultAssemblyNameString)
+		{
+			lock (_ilTypeBuilderCache)
+			{
+				var key = new Tuple<bool, string>(allowSave, assemblyNameString);
+				IlTypeBuilder result;
+				if (!_ilTypeBuilderCache.TryGetValue(key, out result))
+				{
+					result = new IlTypeBuilder(allowSave, assemblyNameString);
+					_ilTypeBuilderCache.Add(key, result);
+				}
+				return result;
+			}
+		}
+
+		/// <summary>
 		/// Create an IlTypeBuilder
 		/// </summary>
 		/// <param name="allowSave">specify true if you also want to be able to save</param>
 		/// <param name="assemblyNameString">Name of the assembly</param>
-		public IlTypeBuilder(bool allowSave = false, string assemblyNameString = DefaultAssemblyNameString)
+		private IlTypeBuilder(bool allowSave = false, string assemblyNameString = DefaultAssemblyNameString)
 		{
 			_allowSave = allowSave;
 			string dllName = $"{assemblyNameString}.dll";
@@ -69,6 +90,11 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		public bool TryGetType(string fqTypeName, out Type type)
 		{
 			type = _assemblyBuilder.GetTypes().Where(x => x.FullName == fqTypeName).FirstOrDefault();
+			if (type == null)
+			{
+				type = Type.GetType(fqTypeName);
+			}
+
 			return type != null;
 		}
 
@@ -79,9 +105,23 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		/// <param name="implementingInterfaces">Interfaces to implement</param>
 		/// <param name="baseType">Type as base</param>
 		/// <returns>Type</returns>
-		public Type CreateType(string typeName, Type[] implementingInterfaces, Type baseType)
+		public Type CreateType(string typeName, Type[] implementingInterfaces, Type baseType = null)
 		{
 			Log.Verbose().WriteLine("Creating type {0}", typeName);
+
+			// Make sure to return the type from "cache" if possible
+			Type cachedType;
+			if (TryGetType(typeName, out cachedType))
+			{
+				Log.Verbose().WriteLine("Returning cached type {0}", typeName);
+				return cachedType;
+			}
+
+			// The base type always have a value, normally everything extends object
+			if (baseType == null)
+			{
+				baseType = typeof(object);
+			}
 
 			// Create the type, and let it implement our interface
 			var typeBuilder = _moduleBuilder.DefineType(typeName,
