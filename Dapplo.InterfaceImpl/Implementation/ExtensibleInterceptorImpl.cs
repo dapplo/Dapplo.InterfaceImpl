@@ -37,7 +37,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 	/// <summary>
 	///     Implementation of the IInterceptor
 	/// </summary>
-	public class ExtensibleInterceptorImpl<T> : IExtensibleInterceptor
+	public class ExtensibleInterceptorImpl<T> : IExtensibleInterceptor, ICloneable
 	{
 		// ReSharper disable once StaticMemberInGenericType
 		private static readonly LogSource Log = new LogSource();
@@ -47,7 +47,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		private readonly IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
 		private readonly IList<Getter> _getters = new List<Getter>();
 		private readonly IDictionary<string, List<Action<MethodCallInfo>>> _methodMap = new Dictionary<string, List<Action<MethodCallInfo>>>();
-		private readonly IDictionary<string, object> _properties = new Dictionary<string, object>(AbcComparerInstance);
+		private IDictionary<string, object> _properties = new Dictionary<string, object>(AbcComparerInstance);
 		private readonly IList<Setter> _setters = new List<Setter>();
 
 		/// <summary>
@@ -168,6 +168,18 @@ namespace Dapplo.InterfaceImpl.Implementation
 		}
 
 		#region IInterceptor
+
+		/// <summary>
+		/// Make a shallow copy of the instance
+		/// </summary>
+		/// <returns>new instance with only the references copied</returns>
+		public object Clone()
+		{
+			var clonedObject = (ExtensibleInterceptorImpl<T>)MemberwiseClone();
+			// This makes sure the backing properties are not a copy
+			clonedObject._properties = new Dictionary<string, object>(_properties, AbcComparerInstance);
+			return clonedObject;
+		}
 
 		/// <summary>
 		///     If an exception is catched during the initialization, it can be found here

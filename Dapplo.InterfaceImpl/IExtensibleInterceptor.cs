@@ -126,5 +126,11 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="propertyName">property name</param>
 		/// <param name="value">object value</param>
 		void Set(string propertyName, object value);
+
+		/// <summary>
+		/// Make a shallow copy of the instance
+		/// </summary>
+		/// <returns>new instance with only the references copied</returns>
+		object Clone();
 	}
 }

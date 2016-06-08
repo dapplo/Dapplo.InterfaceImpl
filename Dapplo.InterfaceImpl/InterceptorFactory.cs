@@ -60,6 +60,7 @@ namespace Dapplo.InterfaceImpl
 			RegisterExtension(typeof (TagExtension));
 			RegisterExtension(typeof (TransactionExtension));
 			RegisterExtension(typeof (WriteProtectExtension));
+			RegisterExtension(typeof (CloneableExtension<>));
 		}
 
 		/// <summary>
@@ -146,18 +147,31 @@ namespace Dapplo.InterfaceImpl
 			{
 				if (!TypeMap.TryGetValue(interfaceType, out implementingType))
 				{
+					int typeIndex = 0;
 					// Build a name for the type
-					var typeName = interfaceType.Name + "Impl";
+					var typeName = interfaceType.Name + "Impl{0}";
 					// Remove "I" at the start
 					if (typeName.StartsWith("I"))
 					{
 						typeName = typeName.Substring(1);
 					}
-
-					var fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, typeName);
+					var fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, string.Format(typeName, typeIndex));
 
 					// Only create it if it was not already created via another way
-					if (!TypeBuilder.TryGetType(fqTypeName, out implementingType))
+					while (TypeBuilder.TryGetType(string.Format(fqTypeName, typeIndex), out implementingType))
+					{
+						// Break loop if the types are assignable
+						if (interfaceType.IsAssignableFrom(implementingType))
+						{
+							Log.Verbose().WriteLine("Using cached, probably created elsewhere, type: {0}", fqTypeName);
+							break;
+						}
+						Log.Verbose().WriteLine("Cached type {0} was not compatible with the interface, ignoring.", fqTypeName);
+						fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, string.Format(typeName, typeIndex++));
+					}
+
+
+					if (implementingType == null)
 					{
 						// Use this baseType if nothing is specified
 						var baseType = typeof(ExtensibleInterceptorImpl<>);
@@ -176,14 +190,15 @@ namespace Dapplo.InterfaceImpl
 						}
 						implementingType = TypeBuilder.CreateType(fqTypeName, implementingInterfaces.ToArray(), baseType);
 					}
-					else
-					{
-						Log.Verbose().WriteLine("Using cached, probably created elsewhere, type: {0}", typeName);
-					}
 
 					// Register the implementation for the interface
 					TypeMap.AddOrOverwrite(interfaceType, implementingType);
 				}
+			}
+
+			if (!interfaceType.IsAssignableFrom(implementingType))
+			{
+				throw new InvalidOperationException($"{interfaceType.AssemblyQualifiedName} and {implementingType.AssemblyQualifiedName} are not compatible!?");
 			}
 
 			// Create an instance for the implementation
@@ -194,6 +209,7 @@ namespace Dapplo.InterfaceImpl
 				throw new ArgumentNullException(nameof(interceptor), "Internal error, the created type didn't implement IExtensibleInterceptor.");
 			}
 
+			var genericImplementingInterfaces = implementingInterfaces.Where(x => x.IsGenericType).Select(x => x.GetGenericTypeDefinition()).ToList();
 			// Add the extensions
 			foreach (var extensionType in ExtensionTypes)
 			{
@@ -201,7 +217,7 @@ namespace Dapplo.InterfaceImpl
 				foreach (var extensionAttribute in extensionAttributes)
 				{
 					var implementing = extensionAttribute.Implementing;
-					if (implementingInterfaces.Contains(implementing))
+					if (implementingInterfaces.Contains(implementing) || genericImplementingInterfaces.Contains(implementing))
 					{
 						interceptor.AddExtension(extensionType);
 					}
