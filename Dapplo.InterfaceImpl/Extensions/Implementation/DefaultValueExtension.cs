@@ -78,22 +78,24 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Register the methods
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 			// this registers one method and the overloading is handled in the GetDefaultValue
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IDefaultValue>(x => x.DefaultValueFor("")), GetDefaultValue);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IDefaultValue>(x => x.RestoreToDefault("")), RestoreToDefault);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IDefaultValue>(x => x.DefaultValueFor("")), GetDefaultValue);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IDefaultValue>(x => x.RestoreToDefault("")), RestoreToDefault);
 		}
 
 		/// <summary>
 		///     Process the property, in our case set the default
 		/// </summary>
+		/// <param name="interceptor"></param>
 		/// <param name="propertyInfo"></param>
-		public override void InitProperty(PropertyInfo propertyInfo)
+		public override void InitProperty(IExtensibleInterceptor interceptor, PropertyInfo propertyInfo)
 		{
 			Exception ex;
-			RestoreToDefault(propertyInfo, out ex);
+			RestoreToDefault(interceptor, propertyInfo, out ex);
 			if (ex != null)
 			{
 				throw ex;
@@ -110,16 +112,17 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			if (propertyInfo != null)
 			{
 				Exception ex;
-				RestoreToDefault(propertyInfo, out ex);
+				RestoreToDefault(methodCallInfo.Interceptor, propertyInfo, out ex);
 			}
 		}
 
 		/// <summary>
 		///     Method to restore a property to its default
 		/// </summary>
+		/// <param name="interceptor">IExtensibleInterceptor responsible for the object</param>
 		/// <param name="propertyInfo"></param>
 		/// <param name="exception">out value to get an exception</param>
-		private void RestoreToDefault(PropertyInfo propertyInfo, out Exception exception)
+		private void RestoreToDefault(IExtensibleInterceptor interceptor, PropertyInfo propertyInfo, out Exception exception)
 		{
 			object defaultValue = null;
 			exception = null;
@@ -136,13 +139,13 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 
 			if (defaultValue != null)
 			{
-				Interceptor.Set(propertyInfo.Name, defaultValue);
+				interceptor.Set(propertyInfo.Name, defaultValue);
 				return;
 			}
 			try
 			{
 				defaultValue = propertyInfo.PropertyType.CreateInstance();
-				Interceptor.Set(propertyInfo.Name, defaultValue);
+				interceptor.Set(propertyInfo.Name, defaultValue);
 			}
 			catch (Exception ex)
 			{

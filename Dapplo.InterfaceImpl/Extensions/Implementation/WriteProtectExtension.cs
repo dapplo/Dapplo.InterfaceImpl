@@ -53,19 +53,20 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Register setter and methods
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 
-			Interceptor.RegisterSetter((int) CallOrder.First, WriteProtectSetter);
+			interceptor.RegisterSetter((int) CallOrder.First, WriteProtectSetter);
 
 			// Use Lambdas to make refactoring possible
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.StartWriteProtecting()), StartWriteProtecting);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.RemoveWriteProtection()), RemoveWriteProtection);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.StopWriteProtecting()), StopWriteProtecting);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.WriteProtect("")), WriteProtect);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.DisableWriteProtect("")), DisableWriteProtect);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.IsWriteProtected("")), IsWriteProtected);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.StartWriteProtecting()), StartWriteProtecting);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.RemoveWriteProtection()), RemoveWriteProtection);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.StopWriteProtecting()), StopWriteProtecting);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.WriteProtect("")), WriteProtect);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.DisableWriteProtect("")), DisableWriteProtect);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IWriteProtectProperties>(x => x.IsWriteProtected("")), IsWriteProtected);
 		}
 
 		/// <summary>

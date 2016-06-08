@@ -36,6 +36,11 @@ namespace Dapplo.InterfaceImpl.Implementation
 		private object[] _outArgs;
 
 		/// <summary>
+		/// The interceptor that created this MethodCallInfo
+		/// </summary>
+		public IExtensibleInterceptor Interceptor { get; set; }
+
+		/// <summary>
 		///     the supplied arguments for the invoke
 		/// </summary>
 		public object[] Arguments { get; set; }

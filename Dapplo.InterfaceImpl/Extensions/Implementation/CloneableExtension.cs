@@ -21,8 +21,6 @@
 
 #region using
 
-using System;
-using System.Collections.Generic;
 using Dapplo.InterfaceImpl.Implementation;
 using Dapplo.Utils;
 using Dapplo.Utils.Extensions;
@@ -41,11 +39,12 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Register setter and methods
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 			// Use Lambdas to make refactoring possible
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ICloneable<T>>(x => x.ShallowClone()), Clone);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ICloneable<T>>(x => x.ShallowClone()), Clone);
 		}
 
 		/// <summary>
@@ -54,7 +53,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <param name="methodCallInfo">IMethodCallMessage</param>
 		private void Clone(MethodCallInfo methodCallInfo)
 		{
-			methodCallInfo.ReturnValue = Interceptor.Clone();
+			methodCallInfo.ReturnValue = methodCallInfo.Interceptor.Clone();
 		}
 	}
 }

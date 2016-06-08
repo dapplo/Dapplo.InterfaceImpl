@@ -37,14 +37,14 @@ namespace Dapplo.InterfaceImpl.Implementation
 	/// <summary>
 	///     Implementation of the IInterceptor
 	/// </summary>
-	public class ExtensibleInterceptorImpl<T> : IExtensibleInterceptor, ICloneable
+	public class ExtensibleInterceptorImpl<T> : IExtensibleInterceptor
 	{
 		// ReSharper disable once StaticMemberInGenericType
 		private static readonly LogSource Log = new LogSource();
 		// ReSharper disable once StaticMemberInGenericType
 		private static readonly AbcComparer AbcComparerInstance = new AbcComparer();
 
-		private readonly IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
+		private IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
 		private readonly IList<Getter> _getters = new List<Getter>();
 		private readonly IDictionary<string, List<Action<MethodCallInfo>>> _methodMap = new Dictionary<string, List<Action<MethodCallInfo>>>();
 		private IDictionary<string, object> _properties = new Dictionary<string, object>(AbcComparerInstance);
@@ -74,8 +74,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			}
 
 			var extension = (IInterceptorExtension) Activator.CreateInstance(extensionType);
-			extension.Interceptor = this;
-			extension.Initialize();
+			extension.Initialize(this);
 			_extensions.Add(extension);
 		}
 
@@ -142,7 +141,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			// Call all AfterInitialization, this allows us to ignore errors
 			foreach (var extension in extensions)
 			{
-				extension.AfterInitialization();
+				extension.AfterInitialization(this);
 			}
 		}
 
@@ -157,7 +156,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			{
 				try
 				{
-					extension.InitProperty(propertyInfo);
+					extension.InitProperty(this, propertyInfo);
 				}
 				catch (Exception ex)
 				{
@@ -173,9 +172,11 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// Make a shallow copy of the instance
 		/// </summary>
 		/// <returns>new instance with only the references copied</returns>
-		public object Clone()
+		object ICloneable.Clone()
 		{
 			var clonedObject = (ExtensibleInterceptorImpl<T>)MemberwiseClone();
+			// Normally a ShallowClone is not so hard, but here we would have a really issue as the values
+			// are inside a dictionary, and copying the reference would NOT be enough
 			// This makes sure the backing properties are not a copy
 			clonedObject._properties = new Dictionary<string, object>(_properties, AbcComparerInstance);
 			return clonedObject;
@@ -308,6 +309,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			var hasValue = _properties.TryGetValue(propertyName, out value);
 			var getInfo = new GetInfo
 			{
+				Interceptor = this,
 				PropertyName = propertyName,
 				PropertyType = propertyType,
 				CanContinue = true,
@@ -340,6 +342,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			var hasOldValue = _properties.TryGetValue(propertyName, out oldValue);
 			var setInfo = new SetInfo
 			{
+				Interceptor = this,
 				PropertyName = propertyName,
 				PropertyType = propertyInfo,
 				CanContinue = true,
@@ -376,6 +379,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			{
 				var methodCallInfo = new MethodCallInfo
 				{
+					Interceptor = this,
 					MethodName = methodName,
 					Arguments = parameters
 				};
@@ -413,7 +417,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 				getInfo.HasValue = false;
 				return;
 			}
-			if (_properties.TryGetValue(getInfo.PropertyName, out value))
+			if (getInfo.Interceptor.Properties.TryGetValue(getInfo.PropertyName, out value))
 			{
 				getInfo.Value = value;
 				getInfo.HasValue = true;
@@ -441,7 +445,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 
 			var newValue = propertyType.ConvertOrCastValueToType(setInfo.NewValue);
 			// Add the value to the dictionary
-			_properties.AddOrOverwrite(setInfo.PropertyName, newValue);
+			setInfo.Interceptor.Properties.AddOrOverwrite(setInfo.PropertyName, newValue);
 		}
 
 		#endregion

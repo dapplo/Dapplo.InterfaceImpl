@@ -63,17 +63,18 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		/// Register setter and methods
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 
-			Interceptor.RegisterSetter((int) CallOrder.Last, HasChangesSetter);
+			interceptor.RegisterSetter((int) CallOrder.Last, HasChangesSetter);
 
 			// Use Lambdas to make refactoring possible
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.ResetHasChanges()), ResetHasChanges);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.HasChanges()), HasChanges);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.IsChanged("")), IsChanged);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.Changes()), Changes);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.ResetHasChanges()), ResetHasChanges);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.HasChanges()), HasChanges);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.IsChanged("")), IsChanged);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IHasChanges>(x => x.Changes()), Changes);
 		}
 
 		/// <summary>

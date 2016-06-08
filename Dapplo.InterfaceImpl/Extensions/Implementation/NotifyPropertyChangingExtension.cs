@@ -51,14 +51,15 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Register methods and setter
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 
-			Interceptor.RegisterMethod("add_PropertyChanging", AddPropertyChanging);
-			Interceptor.RegisterMethod("remove_PropertyChanging", RemovePropertyChanging);
+			interceptor.RegisterMethod("add_PropertyChanging", AddPropertyChanging);
+			interceptor.RegisterMethod("remove_PropertyChanging", RemovePropertyChanging);
 			// Register the NotifyPropertyChangingSetter as a last setter, it will call the NotifyPropertyChanging event
-			Interceptor.RegisterSetter((int) CallOrder.Middle - 1, NotifyPropertyChangingSetter);
+			interceptor.RegisterSetter((int) CallOrder.Middle - 1, NotifyPropertyChangingSetter);
 		}
 
 		/// <summary>
@@ -75,7 +76,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
 			{
 				// Find the real property name
-				var propertyName = Interceptor.PropertyNameFor(setInfo.PropertyName);
+				var propertyName = setInfo.Interceptor.PropertyNameFor(setInfo.PropertyName);
 				if (propertyName == null)
 				{
 					return;
@@ -85,11 +86,11 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				// Test if the event needs to run on in the UiContext
 				if (InterfaceImplConfig.UseUiContextRunOnForEvents)
 				{
-					UiContext.RunOn(() => { PropertyChanging(Interceptor, propertyChangingEventArgs); });
+					UiContext.RunOn(() => { PropertyChanging(setInfo.Interceptor, propertyChangingEventArgs); });
 				}
 				else
 				{
-					PropertyChanging(Interceptor, propertyChangingEventArgs);
+					PropertyChanging(setInfo.Interceptor, propertyChangingEventArgs);
 				}
 			}
 		}

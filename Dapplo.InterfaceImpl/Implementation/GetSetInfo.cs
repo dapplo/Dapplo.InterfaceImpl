@@ -33,6 +33,11 @@ namespace Dapplo.InterfaceImpl.Implementation
 	public class GetSetInfo
 	{
 		/// <summary>
+		/// The interceptor that created this GetSetInfo
+		/// </summary>
+		public IExtensibleInterceptor Interceptor { get; set; }
+
+		/// <summary>
 		///     Can the proxy continue with other getter/setters?
 		///     This should be set to false if a getter/setter implementation wants to throw an exception or thinks there should be
 		///     no more others.

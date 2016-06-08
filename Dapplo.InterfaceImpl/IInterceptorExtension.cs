@@ -38,24 +38,22 @@ namespace Dapplo.InterfaceImpl
 		int InitOrder { get; }
 
 		/// <summary>
-		///     Type which intercepts
-		/// </summary>
-		IExtensibleInterceptor Interceptor { get; set; }
-
-		/// <summary>
 		///     After property initialization, in here exceptions can be ignored or caches created
 		/// </summary>
-		void AfterInitialization();
+		/// <param name="interceptor"></param>
+		void AfterInitialization(IExtensibleInterceptor interceptor);
 
 		/// <summary>
 		///     Initialize the extension, this should register the methods/get/set
 		/// </summary>
-		void Initialize();
+		/// <param name="interceptor"></param>
+		void Initialize(IExtensibleInterceptor interceptor);
 
 		/// <summary>
 		///     This is called for every Property on type T, so we only have 1x reflection
 		/// </summary>
+		/// <param name="interceptor"></param>
 		/// <param name="propertyInfo"></param>
-		void InitProperty(PropertyInfo propertyInfo);
+		void InitProperty(IExtensibleInterceptor interceptor, PropertyInfo propertyInfo);
 	}
 }

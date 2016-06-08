@@ -50,14 +50,15 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Register methods and setter
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 
-			Interceptor.RegisterMethod("add_PropertyChanged", AddPropertyChanged);
-			Interceptor.RegisterMethod("remove_PropertyChanged", RemovePropertyChanged);
+			interceptor.RegisterMethod("add_PropertyChanged", AddPropertyChanged);
+			interceptor.RegisterMethod("remove_PropertyChanged", RemovePropertyChanged);
 			// Register the NotifyPropertyChangedSetter as a last setter, it will call the NPC event
-			Interceptor.RegisterSetter((int) CallOrder.Last, NotifyPropertyChangedSetter);
+			interceptor.RegisterSetter((int) CallOrder.Last, NotifyPropertyChangedSetter);
 		}
 
 		/// <summary>
@@ -74,7 +75,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
 			{
 				// Find the real property name
-				var propertyName = Interceptor.PropertyNameFor(setInfo.PropertyName);
+				var propertyName = setInfo.Interceptor.PropertyNameFor(setInfo.PropertyName);
 				if (propertyName == null)
 				{
 					return;
@@ -85,12 +86,12 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				{
 					UiContext.RunOn(() =>
 					{
-						PropertyChanged(Interceptor, propertyChangedEventArgs);
+						PropertyChanged(setInfo.Interceptor, propertyChangedEventArgs);
 					});
 				}
 				else
 				{
-					PropertyChanged(Interceptor, propertyChangedEventArgs);
+					PropertyChanged(setInfo.Interceptor, propertyChangedEventArgs);
 				}
 			}
 		}

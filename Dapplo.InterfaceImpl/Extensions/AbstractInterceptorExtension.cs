@@ -33,14 +33,10 @@ namespace Dapplo.InterfaceImpl.Extensions
 	public abstract class AbstractInterceptorExtension : IInterceptorExtension
 	{
 		/// <summary>
-		///     The intercepting instance
-		/// </summary>
-		public IExtensibleInterceptor Interceptor { get; set; }
-
-		/// <summary>
 		///     Initialize the extension, e.g. register methods etc.
 		/// </summary>
-		public virtual void Initialize()
+		/// <param name="interceptor"></param>
+		public virtual void Initialize(IExtensibleInterceptor interceptor)
 		{
 		}
 
@@ -54,15 +50,17 @@ namespace Dapplo.InterfaceImpl.Extensions
 		/// <summary>
 		///     Handle every property
 		/// </summary>
+		/// <param name="interceptor"></param>
 		/// <param name="propertyInfo"></param>
-		public virtual void InitProperty(PropertyInfo propertyInfo)
+		public virtual void InitProperty(IExtensibleInterceptor interceptor, PropertyInfo propertyInfo)
 		{
 		}
 
 		/// <summary>
 		///     After property initialization
 		/// </summary>
-		public virtual void AfterInitialization()
+		/// <param name="interceptor"></param>
+		public virtual void AfterInitialization(IExtensibleInterceptor interceptor)
 		{
 		}
 	}

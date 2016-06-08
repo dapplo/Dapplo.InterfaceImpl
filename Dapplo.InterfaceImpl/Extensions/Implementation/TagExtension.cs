@@ -61,20 +61,22 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Register methods
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 
 			// Use Lambda to make refactoring possible, this registers one method and the overloading is handled in the IsTaggedWith
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITagging>(x => x.IsTaggedWith("", null)), IsTaggedWith);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITagging>(x => x.GetTagValue("", null)), GetTagValue);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITagging>(x => x.IsTaggedWith("", null)), IsTaggedWith);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITagging>(x => x.GetTagValue("", null)), GetTagValue);
 		}
 
 		/// <summary>
 		///     Process the property, in our case get the tags
 		/// </summary>
+		/// <param name="interceptor"></param>
 		/// <param name="propertyInfo"></param>
-		public override void InitProperty(PropertyInfo propertyInfo)
+		public override void InitProperty(IExtensibleInterceptor interceptor, PropertyInfo propertyInfo)
 		{
 			var customAttributes = Attribute.GetCustomAttributes(propertyInfo);
 			foreach (var customAttribute in customAttributes)

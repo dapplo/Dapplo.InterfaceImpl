@@ -50,7 +50,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		{
 			if (_inTransaction)
 			{
-				Interceptor.Properties = _transactionProperties;
+				methodCallInfo.Interceptor.Properties = _transactionProperties;
 				_transactionProperties.Clear();
 				_inTransaction = false;
 			}
@@ -60,18 +60,19 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Register methods and getter/setter
 		/// </summary>
-		public override void Initialize()
+		/// <param name="interceptor"></param>
+		public override void Initialize(IExtensibleInterceptor interceptor)
 		{
-			base.Initialize();
+			base.Initialize(interceptor);
 
-			Interceptor.RegisterSetter((int) CallOrder.First, TransactionalSetter);
-			Interceptor.RegisterGetter((int) CallOrder.First, TransactionalGetter);
+			interceptor.RegisterSetter((int) CallOrder.First, TransactionalSetter);
+			interceptor.RegisterGetter((int) CallOrder.First, TransactionalGetter);
 
 			// Use Lambdas to make refactoring possible
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.StartTransaction()), StartTransaction);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.CommitTransaction()), CommitTransaction);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.RollbackTransaction()), RollbackTransaction);
-			Interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.IsTransactionDirty()), IsTransactionDirty);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.StartTransaction()), StartTransaction);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.CommitTransaction()), CommitTransaction);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.RollbackTransaction()), RollbackTransaction);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.IsTransactionDirty()), IsTransactionDirty);
 		}
 
 		/// <summary>
