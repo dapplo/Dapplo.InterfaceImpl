@@ -175,12 +175,13 @@ namespace Dapplo.InterfaceImpl.Implementation
 		object ICloneable.Clone()
 		{
 			var clonedObject = (ExtensibleInterceptorImpl<T>)MemberwiseClone();
+
 			// Normally a ShallowClone is not so hard, but here we would have a really issue as the values
 			// are inside a dictionary, and copying the reference would NOT be enough
-			// This makes sure the backing properties are not a copy
+			// This makes sure the reference to the backing properties is not a simple copy
 			clonedObject._properties = new Dictionary<string, object>(_properties, AbcComparerInstance);
 
-			// Make sure all event handlers are removed, to prevent memory leaks and weird behavior
+			// Make sure all event handlers are removed, to prevent memory leaks and weird behaviors
 			EventExtensions.RemoveEventHandlers(clonedObject);
 			return clonedObject;
 		}

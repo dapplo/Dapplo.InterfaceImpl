@@ -32,7 +32,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	/// <summary>
 	///     This implements logic to add write protect support to your proxied interface.
 	/// </summary>
-	[Extension(typeof (IShallowCloneable<>))]
+	[Extension(typeof (IShallowCloneable<>)),Extension(typeof(IShallowCloneable))]
 	internal class ShallowCloneableExtension<T> : AbstractInterceptorExtension
 		where T : class
 	{
