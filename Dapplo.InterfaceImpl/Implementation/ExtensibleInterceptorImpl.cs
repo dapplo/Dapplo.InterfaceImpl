@@ -179,6 +179,9 @@ namespace Dapplo.InterfaceImpl.Implementation
 			// are inside a dictionary, and copying the reference would NOT be enough
 			// This makes sure the backing properties are not a copy
 			clonedObject._properties = new Dictionary<string, object>(_properties, AbcComparerInstance);
+
+			// Make sure all event handlers are removed, to prevent memory leaks and weird behavior
+			EventExtensions.RemoveEventHandlers(clonedObject);
 			return clonedObject;
 		}
 
