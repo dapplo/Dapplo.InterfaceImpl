@@ -32,8 +32,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	/// <summary>
 	///     This implements logic to add write protect support to your proxied interface.
 	/// </summary>
-	[Extension(typeof (ICloneable<>))]
-	internal class CloneableExtension<T> : AbstractInterceptorExtension
+	[Extension(typeof (IShallowCloneable<>))]
+	internal class ShallowCloneableExtension<T> : AbstractInterceptorExtension
 		where T : class
 	{
 		/// <summary>
@@ -44,7 +44,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		{
 			base.Initialize(interceptor);
 			// Use Lambdas to make refactoring possible
-			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ICloneable<T>>(x => x.ShallowClone()), Clone);
+			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<IShallowCloneable<T>>(x => x.ShallowClone()), Clone);
 		}
 
 		/// <summary>

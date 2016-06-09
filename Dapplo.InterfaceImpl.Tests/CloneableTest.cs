@@ -32,6 +32,9 @@ using Xunit.Abstractions;
 
 namespace Dapplo.InterfaceImpl.Tests
 {
+	/// <summary>
+	/// Tests for the IShallowCloneable extension
+	/// </summary>
 	public class CloneableTest
 	{
 		private readonly ICloneableTest _cloneableTest;
@@ -50,7 +53,9 @@ namespace Dapplo.InterfaceImpl.Tests
 			var cloned = _cloneableTest.ShallowClone();
 			Assert.Equal(testValue, cloned.Name);
 			cloned.Name = "Dapplo";
+			// The old instance should still have the previous value
 			Assert.Equal(testValue, _cloneableTest.Name);
+			// The cloned instance should NOT have the previous value
 			Assert.NotEqual(testValue, cloned.Name);
 		}
 	}

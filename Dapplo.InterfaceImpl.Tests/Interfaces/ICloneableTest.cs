@@ -31,9 +31,8 @@ namespace Dapplo.InterfaceImpl.Tests.Interfaces
 	/// <summary>
 	///     This is the interface under test
 	/// </summary>
-	public interface ICloneableTest : ICloneable<ICloneableTest>
+	public interface ICloneableTest : IShallowCloneable<ICloneableTest>
 	{
-		[Description("Name of the person")]
 		string Name { get; set; }
 	}
 }

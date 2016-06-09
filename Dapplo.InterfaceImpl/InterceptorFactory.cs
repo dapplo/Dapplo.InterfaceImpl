@@ -60,7 +60,7 @@ namespace Dapplo.InterfaceImpl
 			RegisterExtension(typeof (TagExtension));
 			RegisterExtension(typeof (TransactionExtension));
 			RegisterExtension(typeof (WriteProtectExtension));
-			RegisterExtension(typeof (CloneableExtension<>));
+			RegisterExtension(typeof (ShallowCloneableExtension<>));
 		}
 
 		/// <summary>
