@@ -22,7 +22,7 @@
 #region using
 
 using Dapplo.InterfaceImpl.Tests.Interfaces;
-using Dapplo.InterfaceImpl.Tests.Logger;
+using Dapplo.Log.XUnit;
 using Dapplo.LogFacade;
 using Xunit;
 using Xunit.Abstractions;
@@ -47,7 +47,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public TagAttributeTest(ITestOutputHelper testOutputHelper)
 		{
-			XUnitLogger.RegisterLogger(testOutputHelper, LogLevel.Verbose);
+			XUnitLogger.RegisterLogger(testOutputHelper, LogLevels.Verbose);
 			_tagAttributeTest = InterceptorFactory.New<ITagAttributeTest>();
 		}
 

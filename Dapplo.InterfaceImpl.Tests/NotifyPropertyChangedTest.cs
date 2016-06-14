@@ -24,7 +24,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
-using Dapplo.InterfaceImpl.Tests.Logger;
+using Dapplo.Log.XUnit;
 using Dapplo.LogFacade;
 using Xunit;
 using Xunit.Abstractions;
@@ -44,7 +44,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public NotifyPropertyChangedTest(ITestOutputHelper testOutputHelper)
 		{
-			XUnitLogger.RegisterLogger(testOutputHelper, LogLevel.Verbose);
+			XUnitLogger.RegisterLogger(testOutputHelper, LogLevels.Verbose);
 			_notifyPropertyChangedTest = InterceptorFactory.New<INotifyPropertyChangedTest>();
 		}
 
