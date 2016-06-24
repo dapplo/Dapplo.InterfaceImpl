@@ -24,7 +24,7 @@
 using System;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -42,7 +42,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public WriteProtectTest(ITestOutputHelper testOutputHelper)
 		{
-			XUnitLogger.RegisterLogger(testOutputHelper, LogLevels.Verbose);
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
 			_writeProtectTest = InterceptorFactory.New<IWriteProtectTest>();
 		}
 

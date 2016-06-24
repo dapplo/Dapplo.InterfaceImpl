@@ -23,7 +23,7 @@
 
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public DescriptionTest(ITestOutputHelper testOutputHelper)
 		{
-			XUnitLogger.RegisterLogger(testOutputHelper, LogLevels.Verbose);
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
 			_descriptionTest = InterceptorFactory.New<IDescriptionTest>();
 		}
 

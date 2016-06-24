@@ -28,7 +28,7 @@ using Dapplo.InterfaceImpl.Extensions.Implementation;
 using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Implementation;
 using Dapplo.Utils.Extensions;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 
 #endregion
 

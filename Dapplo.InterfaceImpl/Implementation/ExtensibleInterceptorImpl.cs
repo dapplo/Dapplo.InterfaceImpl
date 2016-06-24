@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using Dapplo.Utils;
 using Dapplo.Utils.Extensions;
 

@@ -25,7 +25,7 @@ using System.IO;
 using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using Xunit;
 using Xunit.Abstractions;
 using Dapplo.InterfaceImpl.Implementation;
@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl.Tests
 	{
 		public IlTypeBuilderTest(ITestOutputHelper testOutputHelper)
 		{
-			XUnitLogger.RegisterLogger(testOutputHelper, LogLevels.Verbose);
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
 		}
 
 		[Fact]

@@ -25,7 +25,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Dapplo.LogFacade;
+using Dapplo.Log.Facade;
 using System.Collections.Generic;
 using Dapplo.Utils.Extensions;
 
