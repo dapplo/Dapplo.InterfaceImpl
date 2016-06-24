@@ -2,7 +2,7 @@ version: 0.1.{build}
 skip_tags: true
 configuration: Release
 platform: Any CPU
-clone_depth: 2
+clone_depth: 4
 branches:
   only:
   - master
