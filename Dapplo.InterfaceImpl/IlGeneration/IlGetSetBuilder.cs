@@ -109,37 +109,6 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		}
 
 		/// <summary>
-		///     Build a property directly inside the type
-		/// </summary>
-		/// <param name="typeBuilder"></param>
-		/// <param name="name"></param>
-		/// <param name="type"></param>
-		/// <returns>FieldInfo</returns>
-		internal static FieldInfo BuildProperty(TypeBuilder typeBuilder, string name, Type type)
-		{
-			Log.Verbose().WriteLine("Generating property {0} with type {1}", name, type.FullName);
-
-			var backingField = typeBuilder.DefineField("_" + name.ToLowerInvariant(), type, FieldAttributes.Private | FieldAttributes.HasDefault);
-			var propertyBuilder = typeBuilder.DefineProperty(name, PropertyAttributes.HasDefault, type, null);
-
-			var getter = typeBuilder.DefineMethod("get_" + name, SetGetMethodAttributes, type, Type.EmptyTypes);
-			var getIl = getter.GetILGenerator();
-			getIl.Emit(OpCodes.Ldarg_0);
-			getIl.Emit(OpCodes.Ldfld, backingField);
-			getIl.Emit(OpCodes.Ret);
-			propertyBuilder.SetGetMethod(getter);
-
-			var setter = typeBuilder.DefineMethod("set_" + name, SetGetMethodAttributes, null, new[] {type});
-			var setIl = setter.GetILGenerator();
-			setIl.Emit(OpCodes.Ldarg_0);
-			setIl.Emit(OpCodes.Ldarg_1);
-			setIl.Emit(OpCodes.Stfld, backingField);
-			setIl.Emit(OpCodes.Ret);
-			propertyBuilder.SetSetMethod(setter);
-			return backingField;
-		}
-
-		/// <summary>
 		///     Build the Setter for the property
 		/// </summary>
 		/// <param name="typeBuilder">TypeBuilder</param>

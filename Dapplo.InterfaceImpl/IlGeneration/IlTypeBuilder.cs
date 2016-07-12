@@ -39,8 +39,9 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 	public class IlTypeBuilder
 	{
 		private static readonly LogSource Log = new LogSource();
-		private static readonly IDictionary<Tuple<bool, string>, IlTypeBuilder> _ilTypeBuilderCache = new Dictionary<Tuple<bool, string>, IlTypeBuilder>();
+		private static readonly IDictionary<Tuple<bool, string>, IlTypeBuilder> IlTypeBuilderCache = new Dictionary<Tuple<bool, string>, IlTypeBuilder>();
 		private const string DefaultAssemblyNameString = "Dapplo.InterfaceImpl.Generated";
+		private static readonly string[] SpecialPrefixes = {"get_","set_","add_","remove_"};
 		private readonly AssemblyBuilder _assemblyBuilder;
 		private readonly ModuleBuilder _moduleBuilder;
 		private readonly bool _allowSave;
@@ -52,14 +53,14 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		/// <param name="assemblyNameString">Name of the assembly</param>
 		public static IlTypeBuilder CreateOrGet(bool allowSave = false, string assemblyNameString = DefaultAssemblyNameString)
 		{
-			lock (_ilTypeBuilderCache)
+			lock (IlTypeBuilderCache)
 			{
 				var key = new Tuple<bool, string>(allowSave, assemblyNameString);
 				IlTypeBuilder result;
-				if (!_ilTypeBuilderCache.TryGetValue(key, out result))
+				if (!IlTypeBuilderCache.TryGetValue(key, out result))
 				{
 					result = new IlTypeBuilder(allowSave, assemblyNameString);
-					_ilTypeBuilderCache.Add(key, result);
+					IlTypeBuilderCache.Add(key, result);
 				}
 				return result;
 			}
@@ -90,7 +91,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		public bool TryGetType(string fqTypeName, out Type type)
 		{
 
-			type = _assemblyBuilder.GetTypes().Where(x => x.FullName == fqTypeName).FirstOrDefault();
+			type = _assemblyBuilder.GetTypes().FirstOrDefault(x => x.FullName == fqTypeName);
 			if (type == null)
 			{
 				type = Type.GetType(fqTypeName);
@@ -195,7 +196,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 					Log.Verbose().WriteLine("Skipping method {0}, as the base class implements this.", methodInfo.Name);
 					continue;
 				}
-				if (methodInfo.Name.StartsWith("get_") || methodInfo.Name.StartsWith("set_"))
+				if (SpecialPrefixes.Any(x => methodInfo.Name.StartsWith(x)))
 				{
 					Log.Verbose().WriteLine("Skipping method {0}", methodInfo.Name);
 					continue;
@@ -203,6 +204,18 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 				IlMethodBuilder.BuildMethod(typeBuilder, methodInfo);
 				Log.Verbose().WriteLine("Created method {0}", methodInfo.Name);
 			}
+
+			// Now generate the methods for the event redirections
+			var eventInfos =
+				from iface in implementingInterfaces
+				from eventInfo in iface.GetEvents()
+				select eventInfo;
+			foreach (var eventInfo in eventInfos)
+			{
+				IlEventBuilder.BuildEvent(typeBuilder, eventInfo, baseMethods);
+				Log.Verbose().WriteLine("Created event {0}", eventInfo.Name);
+			}
+
 			Log.Verbose().WriteLine("Created type {0}", typeName);
 			return typeBuilder.CreateType();
 		}

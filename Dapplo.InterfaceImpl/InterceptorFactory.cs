@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl
 	///     This class is a factory which can create an implementation for an interface.
 	///     It can "new" the implementation, add intercepting code and extensions.
 	/// </summary>
-	public class InterceptorFactory
+	public static class InterceptorFactory
 	{
 		private static readonly LogSource Log = new LogSource();
 		private static readonly IList<Type> ExtensionTypes = new List<Type>();

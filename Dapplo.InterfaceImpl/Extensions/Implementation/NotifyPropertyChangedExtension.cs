@@ -23,7 +23,6 @@
 
 using System.ComponentModel;
 using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Utils;
 
 #endregion
 
@@ -37,15 +36,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	[Extension(typeof (INotifyPropertyChanged))]
 	internal class NotifyPropertyChangedExtension : AbstractInterceptorExtension
 	{
-		/// <summary>
-		///     This is the logic which is called when the PropertyChanged event is registered.
-		/// </summary>
-		/// <param name="methodCallInfo">MethodCallInfo</param>
-		private void AddPropertyChanged(MethodCallInfo methodCallInfo)
-		{
-			// Add the parameters which should contain the event handler
-			PropertyChanged += (PropertyChangedEventHandler) methodCallInfo.Arguments[0];
-		}
+		// The "backing" event
+		private event PropertyChangedEventHandler PropertyChanged;
 
 		/// <summary>
 		///     Register methods and setter
@@ -55,18 +47,34 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		{
 			base.Initialize(interceptor);
 
-			interceptor.RegisterMethod("add_PropertyChanged", AddPropertyChanged);
-			interceptor.RegisterMethod("remove_PropertyChanged", RemovePropertyChanged);
+			// Map the default add / remove handler methods
+			interceptor.RegisterMethod($"add_{nameof(PropertyChanged)}", AddPropertyChanged);
+			interceptor.RegisterMethod($"remove_{nameof(PropertyChanged)}", RemovePropertyChanged);
+
+			// This is not default, but used by EventOberservable (Dapplo.Utils)
+			interceptor.RegisterMethod($"invoke_{nameof(PropertyChanged)}", InvokePropertyChanged);
 			// Register the NotifyPropertyChangedSetter as a last setter, it will call the NPC event
 			interceptor.RegisterSetter((int) CallOrder.Last, NotifyPropertyChangedSetter);
 		}
 
+		/// <summary>
+		///     This is the logic which is called to invoke the event.
+		/// </summary>
+		/// <param name="sender">object</param>
+		/// <param name="eventArgs">PropertyChangedEventArgs</param>
+		private void InvokePropertyChanged(object sender, PropertyChangedEventArgs eventArgs)
+		{
+			PropertyChanged?.Invoke(sender, eventArgs);
+		}
+
+		#region registered methods
 		/// <summary>
 		///     This creates a NPC event if the values are changed
 		/// </summary>
 		/// <param name="setInfo">SetInfo with all the set call information</param>
 		private void NotifyPropertyChangedSetter(SetInfo setInfo)
 		{
+			// Fast exit when no listeners.
 			if (PropertyChanged == null)
 			{
 				return;
@@ -81,23 +89,29 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 					return;
 				}
 				var propertyChangedEventArgs = new PropertyChangedEventArgs(propertyName);
-				// Test if the event needs to run on in the UiContext
-				if (InterfaceImplConfig.UseUiContextRunOnForEvents)
-				{
-					UiContext.RunOn(() =>
-					{
-						PropertyChanged(setInfo.Interceptor, propertyChangedEventArgs);
-					});
-				}
-				else
-				{
-					PropertyChanged(setInfo.Interceptor, propertyChangedEventArgs);
-				}
+				InvokePropertyChanged(setInfo.Interceptor, propertyChangedEventArgs);
 			}
 		}
 
-		// The "backing" event
-		private event PropertyChangedEventHandler PropertyChanged;
+		/// <summary>
+		///     This is the logic which is called to invoke the event.
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void InvokePropertyChanged(MethodCallInfo methodCallInfo)
+		{
+			InvokePropertyChanged(methodCallInfo.Arguments[0], (PropertyChangedEventArgs)methodCallInfo.Arguments[1]);
+		}
+
+	
+		/// <summary>
+		///     This is the logic which is called when the PropertyChanged event is registered.
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void AddPropertyChanged(MethodCallInfo methodCallInfo)
+		{
+			// Add the parameters which should contain the event handler
+			PropertyChanged += (PropertyChangedEventHandler)methodCallInfo.Arguments[0];
+		}
 
 		/// <summary>
 		///     This is the logic which is called when the PropertyChanged event is unregistered.
@@ -108,5 +122,6 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			// Remove the handler via the parameter which should contain the event handler
 			PropertyChanged -= (PropertyChangedEventHandler) methodCallInfo.Arguments[0];
 		}
+		#endregion
 	}
 }

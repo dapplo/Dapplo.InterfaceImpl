@@ -23,7 +23,6 @@
 
 using System.ComponentModel;
 using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Utils;
 
 #endregion
 
@@ -38,15 +37,9 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	[Extension(typeof (INotifyPropertyChanging))]
 	internal class NotifyPropertyChangingExtension : AbstractInterceptorExtension
 	{
-		/// <summary>
-		///     This is the logic which is called when the PropertyChanging event is registered.
-		/// </summary>
-		/// <param name="methodCallInfo">MethodCallInfo</param>
-		private void AddPropertyChanging(MethodCallInfo methodCallInfo)
-		{
-			// Add the parameters which should contain the event handler
-			PropertyChanging += (PropertyChangingEventHandler) methodCallInfo.Arguments[0];
-		}
+
+		// The "backing" event
+		private event PropertyChangingEventHandler PropertyChanging;
 
 		/// <summary>
 		///     Register methods and setter
@@ -56,10 +49,47 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		{
 			base.Initialize(interceptor);
 
-			interceptor.RegisterMethod("add_PropertyChanging", AddPropertyChanging);
-			interceptor.RegisterMethod("remove_PropertyChanging", RemovePropertyChanging);
+			// Map the default add / remove handler methods
+			interceptor.RegisterMethod($"add_{nameof(PropertyChanging)}", AddPropertyChanging);
+			interceptor.RegisterMethod($"remove_{nameof(PropertyChanging)}", RemovePropertyChanging);
+
+			// This is not default, but used by EventOberservable (Dapplo.Utils)
+			interceptor.RegisterMethod($"invoke_{nameof(PropertyChanging)}", InvokePropertyChanging);
+
 			// Register the NotifyPropertyChangingSetter as a last setter, it will call the NotifyPropertyChanging event
 			interceptor.RegisterSetter((int) CallOrder.Middle - 1, NotifyPropertyChangingSetter);
+		}
+
+
+		/// <summary>
+		///     This is the logic which is called to invoke the event.
+		/// </summary>
+		/// <param name="sender">object</param>
+		/// <param name="eventArgs">PropertyChangingEventArgs</param>
+		private void InvokePropertyChanging(object sender, PropertyChangingEventArgs eventArgs)
+		{
+			PropertyChanging?.Invoke(sender, eventArgs);
+		}
+
+		#region registered methods
+
+		/// <summary>
+		///     This is the logic which is called to invoke the event.
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void InvokePropertyChanging(MethodCallInfo methodCallInfo)
+		{
+			InvokePropertyChanging(methodCallInfo.Arguments[0], (PropertyChangingEventArgs)methodCallInfo.Arguments[1]);
+		}
+
+		/// <summary>
+		///     This is the logic which is called when the PropertyChanging event is registered.
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void AddPropertyChanging(MethodCallInfo methodCallInfo)
+		{
+			// Add the parameters which should contain the event handler
+			PropertyChanging += (PropertyChangingEventHandler)methodCallInfo.Arguments[0];
 		}
 
 		/// <summary>
@@ -83,20 +113,10 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				}
 
 				var propertyChangingEventArgs = new PropertyChangingEventArgs(propertyName);
-				// Test if the event needs to run on in the UiContext
-				if (InterfaceImplConfig.UseUiContextRunOnForEvents)
-				{
-					UiContext.RunOn(() => { PropertyChanging(setInfo.Interceptor, propertyChangingEventArgs); });
-				}
-				else
-				{
-					PropertyChanging(setInfo.Interceptor, propertyChangingEventArgs);
-				}
+				InvokePropertyChanging(setInfo.Interceptor, propertyChangingEventArgs);
 			}
 		}
 
-		// The "backing" event
-		private event PropertyChangingEventHandler PropertyChanging;
 
 		/// <summary>
 		///     This is the logic which is called when the PropertyChanging event is unregistered.
@@ -107,5 +127,6 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			// Remove the handler via the parameter which should contain the event handler
 			PropertyChanging -= (PropertyChangingEventHandler) methodCallInfo.Arguments[0];
 		}
+		#endregion
 	}
 }

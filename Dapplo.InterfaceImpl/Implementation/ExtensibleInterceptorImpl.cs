@@ -28,6 +28,7 @@ using System.Linq;
 using System.Reflection;
 using Dapplo.Log.Facade;
 using Dapplo.Utils;
+using Dapplo.Utils.Events;
 using Dapplo.Utils.Extensions;
 
 #endregion
@@ -44,7 +45,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		// ReSharper disable once StaticMemberInGenericType
 		private static readonly AbcComparer AbcComparerInstance = new AbcComparer();
 
-		private IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
+		private readonly IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
 		private readonly IList<Getter> _getters = new List<Getter>();
 		private readonly IDictionary<string, List<Action<MethodCallInfo>>> _methodMap = new Dictionary<string, List<Action<MethodCallInfo>>>();
 		private IDictionary<string, object> _properties = new Dictionary<string, object>(AbcComparerInstance);
@@ -182,7 +183,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			clonedObject._properties = new Dictionary<string, object>(_properties, AbcComparerInstance);
 
 			// Make sure all event handlers are removed, to prevent memory leaks and weird behaviors
-			EventExtensions.RemoveEventHandlers(clonedObject);
+			EventObservable.RemoveEventHandlers(clonedObject);
 			return clonedObject;
 		}
 

@@ -47,10 +47,10 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		{
 			var parameterTypes = (
 				from parameterInfo in methodInfo.GetParameters()
-				select parameterInfo.ParameterType).ToList();
+				select parameterInfo.ParameterType).ToArray();
 
 			var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes);
-			methodBuilder.SetParameters(parameterTypes.ToArray());
+			methodBuilder.SetParameters(parameterTypes);
 			methodBuilder.SetReturnType(methodInfo.ReturnType);
 
 			if (methodInfo.IsGenericMethod)
@@ -60,20 +60,26 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 				methodBuilder.MakeGenericMethod(genericArguments);
 			}
 
-			GenerateIlMethod(methodBuilder, methodInfo);
+			GenerateForwardingIlMethod(methodBuilder, methodInfo.Name, parameterTypes.Length, methodInfo.ReturnType);
 		}
 
-		private static void GenerateIlMethod(MethodBuilder methodBuilder, MethodInfo methodInfo)
+		/// <summary>
+		/// Generate a forwarding method, this calls IExtensibleInterceptor.Invoke
+		/// </summary>
+		/// <param name="methodBuilder">MethodBuilder</param>
+		/// <param name="methodName">name of the method</param>
+		/// <param name="parameters">number of parameters</param>
+		/// <param name="returnType">Type</param>
+		internal static void GenerateForwardingIlMethod(MethodBuilder methodBuilder, string methodName, int parameters, Type returnType)
 		{
 			var ilMethod = methodBuilder.GetILGenerator();
 
-			var local = ilMethod.DeclareLocal(typeof (object[]));
+			var local = ilMethod.DeclareLocal(typeof(object[]));
 
-			var arraySize = methodInfo.GetParameters().Length;
-			ilMethod.Emit(OpCodes.Ldc_I4, arraySize);
-			ilMethod.Emit(OpCodes.Newarr, typeof (object));
+			ilMethod.Emit(OpCodes.Ldc_I4, parameters);
+			ilMethod.Emit(OpCodes.Newarr, typeof(object));
 			ilMethod.Emit(OpCodes.Stloc, local);
-			for (var i = 0; i < arraySize; i++)
+			for (var i = 0; i < parameters; i++)
 			{
 				ilMethod.Emit(OpCodes.Ldloc, local);
 				ilMethod.Emit(OpCodes.Ldc_I4, i);
@@ -83,22 +89,22 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 
 			// Load the instance of the class (this) on the stack
 			ilMethod.Emit(OpCodes.Ldarg_0);
-			ilMethod.Emit(OpCodes.Ldstr, methodInfo.Name);
+			ilMethod.Emit(OpCodes.Ldstr, methodName);
 			ilMethod.Emit(OpCodes.Ldloc, local);
 
 			ilMethod.Emit(OpCodes.Callvirt, InterceptorInvoke);
-			if (methodInfo.ReturnType == typeof (void))
+			if (returnType == typeof(void))
 			{
 				ilMethod.Emit(OpCodes.Pop);
 			}
-			else if (methodInfo.ReturnType.IsValueType)
+			else if (returnType.IsValueType)
 			{
-				ilMethod.Emit(OpCodes.Unbox_Any, methodInfo.ReturnType);
+				ilMethod.Emit(OpCodes.Unbox_Any, returnType);
 			}
 			else
 			{
 				// Cast the return value
-				ilMethod.Emit(OpCodes.Castclass, methodInfo.ReturnType);
+				ilMethod.Emit(OpCodes.Castclass, returnType);
 			}
 			ilMethod.Emit(OpCodes.Ret);
 		}
