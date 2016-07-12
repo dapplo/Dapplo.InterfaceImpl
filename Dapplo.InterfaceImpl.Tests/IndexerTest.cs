@@ -37,7 +37,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public IndexerTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_indexerTest = InterceptorFactory.New<IIndexerTest>();
 		}
 

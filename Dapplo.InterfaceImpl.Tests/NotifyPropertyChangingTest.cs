@@ -42,15 +42,13 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public NotifyPropertyChangingTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_notifyPropertyChangingTest = InterceptorFactory.New<INotifyPropertyChangingTest>();
 		}
 
 		[Fact]
 		public void TestNotifyPropertyChanging()
 		{
-			// Without this, the test-case will fail
-			InterfaceImplConfig.UseUiContextRunOnForEvents = false;
 			string changingPropertyName = null;
 
 			var propChanging = new PropertyChangingEventHandler((sender, eventArgs) =>

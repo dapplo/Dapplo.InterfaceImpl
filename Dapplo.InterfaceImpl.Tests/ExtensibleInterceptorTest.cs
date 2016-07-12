@@ -39,7 +39,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public ExtensibleInterceptorTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_bassicAssignTest = InterceptorFactory.New<IBassicAssignTest>();
 		}
 

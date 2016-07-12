@@ -40,7 +40,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public TransactionTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 
 			_transactionTest = InterceptorFactory.New<ITransactionTest>();
 		}

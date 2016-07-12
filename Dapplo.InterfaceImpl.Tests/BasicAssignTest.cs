@@ -21,7 +21,6 @@
 
 #region using
 
-using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
 using Dapplo.Log.Facade;
@@ -38,7 +37,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public BassicAssignTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_bassicAssignTest = InterceptorFactory.New<IBassicAssignTest>();
 		}
 

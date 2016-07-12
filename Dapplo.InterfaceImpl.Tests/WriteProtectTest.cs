@@ -42,7 +42,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public WriteProtectTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_writeProtectTest = InterceptorFactory.New<IWriteProtectTest>();
 		}
 

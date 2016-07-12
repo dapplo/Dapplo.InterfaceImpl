@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl.Tests
 	{
 		public IlTypeBuilderTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 		}
 
 		[Fact]
@@ -47,7 +47,7 @@ namespace Dapplo.InterfaceImpl.Tests
 			var typeBuilder = IlTypeBuilder.CreateOrGet(true, "Generated.Dapplo.InterfaceImpl.Tests");
 
 			typeBuilder.CreateType("SimpleTypeTest", new[] { typeof (ISimpleTypeTest) });
-			var tmpFileName = "MySimpleType.dll";
+			const string tmpFileName = "MySimpleType.dll";
 
 			typeBuilder.SaveAssemblyDll(tmpFileName);
 			Assert.True(File.Exists(tmpFileName));
@@ -55,10 +55,10 @@ namespace Dapplo.InterfaceImpl.Tests
 		}
 
 		[Fact]
-		public void TestCreateType_Double()
+		public void TestCreateType_2x()
 		{
 			// Create via factory
-			var impl = InterceptorFactory.New<ISimpleTypeTest>();
+			InterceptorFactory.New<ISimpleTypeTest>();
 
 			var testInterfaceType = typeof(ISimpleTypeTest);
 
@@ -80,7 +80,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 			// Create self
 			var typeBuilder = IlTypeBuilder.CreateOrGet();
-			var createdType = typeBuilder.CreateType(fqTypeName, new[] { testInterfaceType });
+			typeBuilder.CreateType(fqTypeName, new[] { testInterfaceType }, baseType);
 		}
 	}
 }

@@ -40,7 +40,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public DefaultValueTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_defaultValueTest = InterceptorFactory.New<IDefaultValueTest>();
 		}
 

@@ -22,13 +22,12 @@
 #region using
 
 using System.ComponentModel;
-using System.Threading.Tasks;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
 using Dapplo.Log.Facade;
 using Xunit;
 using Xunit.Abstractions;
-using Dapplo.Utils;
+using Dapplo.Utils.Events;
 
 #endregion
 
@@ -44,58 +43,27 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public NotifyPropertyChangedTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_notifyPropertyChangedTest = InterceptorFactory.New<INotifyPropertyChangedTest>();
 		}
 
-		[WpfFact]
-		public async Task TestNotifyPropertyChanged_Wpf()
+		/// <summary>
+		/// Test with Dapplo.Utils EventObservable.From
+		/// </summary>
+		[Fact]
+		public void TestNotifyPropertyChanged_EventObservable()
 		{
-			InterfaceImplConfig.UseUiContextRunOnForEvents = true;
-			UiContext.Initialize();
-			Assert.NotNull(UiContext.UiTaskScheduler);
-			Assert.True(InterfaceImplConfig.UseUiContextRunOnForEvents);
-
-			string changedPropertyName = null;
-			var propChanged = new PropertyChangedEventHandler((sender, eventArgs) =>
-			{
-				changedPropertyName = eventArgs.PropertyName;
-				Log.Debug().WriteLine("Property change notification for {0}", eventArgs.PropertyName);
-			});
-
-			// Test event handler
-			_notifyPropertyChangedTest.PropertyChanged += propChanged;
-			_notifyPropertyChangedTest.Name = TestValue2;
-			// Make sure the events are handled
-			await Task.Yield();
-			Assert.Equal("Name", changedPropertyName);
-
-			// Test event handler a second time
-			_notifyPropertyChangedTest.Name = TestValue1;
-
-			// Make sure the events are handled
-			await Task.Yield();
-			Assert.Equal("Name", changedPropertyName);
-
-			// Ensure that if the value is the same, we don't get an event
-			changedPropertyName = NoChange;
-			_notifyPropertyChangedTest.Name = TestValue1;
-			await Task.Yield();
-			Assert.Equal(NoChange, changedPropertyName);
-
-			// Test if event handler is unregistered
-			_notifyPropertyChangedTest.PropertyChanged -= propChanged;
-			changedPropertyName = NoChange;
-			_notifyPropertyChangedTest.Name = TestValue2;
-			await Task.Yield();
-			Assert.Equal(NoChange, changedPropertyName);
+			PropertyChangedEventArgs testValue = null;
+			var eO = EventObservable.From(_notifyPropertyChangedTest);
+			var disposable = eO.OnEach(pce => testValue = pce.Args);
+			eO.Trigger(EventData.Create(this, new PropertyChangedEventArgs("Name")));
+			Assert.Equal("Name", testValue.PropertyName); 
 		}
 
 		[Fact]
 		public void TestNotifyPropertyChanged()
 		{
 			string changedPropertyName = null;
-			InterfaceImplConfig.UseUiContextRunOnForEvents = false;
 			var propChanged = new PropertyChangedEventHandler((sender, eventArgs) =>
 			{
 				changedPropertyName = eventArgs.PropertyName;

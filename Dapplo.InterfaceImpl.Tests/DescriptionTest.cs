@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public DescriptionTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_descriptionTest = InterceptorFactory.New<IDescriptionTest>();
 		}
 

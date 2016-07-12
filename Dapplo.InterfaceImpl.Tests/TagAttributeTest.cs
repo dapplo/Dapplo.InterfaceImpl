@@ -47,7 +47,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public TagAttributeTest(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_tagAttributeTest = InterceptorFactory.New<ITagAttributeTest>();
 		}
 

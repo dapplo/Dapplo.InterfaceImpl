@@ -40,7 +40,7 @@ namespace Dapplo.InterfaceImpl.Tests
 
 		public HasChangesTests(ITestOutputHelper testOutputHelper)
 		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);;
+			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
 			_hasChangesTest = InterceptorFactory.New<IHasChangesTest>();
 		}
 
