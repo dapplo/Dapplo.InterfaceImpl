@@ -42,22 +42,6 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		private bool _inTransaction;
 
 		/// <summary>
-		///     Logic to commit the transaction, all values set (changed) after starting the transaction are stored in the proxy
-		///     property store
-		/// </summary>
-		/// <param name="methodCallInfo">MethodCallInfo</param>
-		private void CommitTransaction(MethodCallInfo methodCallInfo)
-		{
-			if (_inTransaction)
-			{
-				methodCallInfo.Interceptor.Properties = _transactionProperties;
-				_transactionProperties.Clear();
-				_inTransaction = false;
-			}
-			// TODO: Throw exception if we are not inside a transaction?
-		}
-
-		/// <summary>
 		///     Register methods and getter/setter
 		/// </summary>
 		/// <param name="interceptor"></param>
@@ -75,38 +59,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			interceptor.RegisterMethod(ExpressionExtensions.GetMemberName<ITransactionalProperties>(x => x.IsTransactionDirty()), IsTransactionDirty);
 		}
 
-		/// <summary>
-		///     This returns true if we have set (changed) values during a transaction
-		/// </summary>
-		/// <param name="methodCallInfo">MethodCallInfo</param>
-		private void IsTransactionDirty(MethodCallInfo methodCallInfo)
-		{
-			methodCallInfo.ReturnValue = _inTransaction && _transactionProperties.Count > 0;
-		}
-
-		/// <summary>
-		///     Logic to rollback the transaction, all values set (changed) after starting the transaction will be cleared
-		/// </summary>
-		/// <param name="methodCallInfo">MethodCallInfo</param>
-		private void RollbackTransaction(MethodCallInfo methodCallInfo)
-		{
-			if (_inTransaction)
-			{
-				_transactionProperties.Clear();
-				_inTransaction = false;
-			}
-			// TODO: Throw exception if we are not inside a transaction?
-		}
-
-		/// <summary>
-		///     Logic to start the transaction, any setter used after this will be in the transaction
-		/// </summary>
-		/// <param name="methodCallInfo">MethodCallInfo</param>
-		private void StartTransaction(MethodCallInfo methodCallInfo)
-		{
-			_inTransaction = true;
-		}
-
+		#region Get and Set implementation
 		/// <summary>
 		///     This is the implementation of the getter logic for a transactional proxy
 		/// </summary>
@@ -150,5 +103,80 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				setInfo.CanContinue = false;
 			}
 		}
+
+		#endregion
+
+		#region Interface implementation
+
+		/// <summary>
+		///     Logic to commit the transaction, all values set (changed) after starting the transaction are stored in the proxy
+		///     property store
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void CommitTransaction(MethodCallInfo methodCallInfo)
+		{
+			// Lock to prevent rollback etc to run parallel
+			lock (_transactionProperties)
+			{
+				// Only when we have started a transaction
+				if (_inTransaction)
+				{
+					// Disable the transaction, otherwise the set will only overwrite the value in _transactionProperties
+					_inTransaction = false;
+					// Call the set for every property, this will invoke every setter (NPC etc)
+					foreach (var transactionProperty in _transactionProperties)
+					{
+						methodCallInfo.Interceptor.Set(transactionProperty.Key, transactionProperty.Value);
+					}
+					// Clear all the properties, so the transaction is clean
+					_transactionProperties.Clear();
+				}
+			}
+		}
+
+		/// <summary>
+		///     This returns true if we have set (changed) values during a transaction
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void IsTransactionDirty(MethodCallInfo methodCallInfo)
+		{
+			lock (_transactionProperties)
+			{
+				methodCallInfo.ReturnValue = _inTransaction && _transactionProperties.Count > 0;
+			}
+		}
+
+		/// <summary>
+		///     Logic to rollback the transaction, all values set (changed) after starting the transaction will be cleared
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void RollbackTransaction(MethodCallInfo methodCallInfo)
+		{
+			// Lock to prevent commit etc to run parallel
+			lock (_transactionProperties)
+			{
+				// Only when we have started a transaction, it can be cleared
+				if (_inTransaction)
+				{
+					_transactionProperties.Clear();
+					_inTransaction = false;
+				}
+			}
+		}
+
+		/// <summary>
+		///     Logic to start the transaction, any setter used after this will be in the transaction
+		/// </summary>
+		/// <param name="methodCallInfo">MethodCallInfo</param>
+		private void StartTransaction(MethodCallInfo methodCallInfo)
+		{
+			lock (_transactionProperties)
+			{
+				_inTransaction = true;
+			}
+		}
+
+		#endregion
+
 	}
 }
