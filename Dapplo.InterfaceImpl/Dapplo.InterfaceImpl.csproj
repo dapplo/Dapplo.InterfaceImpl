@@ -37,6 +37,10 @@
       <HintPath>..\..\Dapplo.CaliburnMicro\packages\Dapplo.Log.Facade.0.5.4\lib\net45\Dapplo.Log.Facade.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Dapplo.Utils, Version=0.1.81.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapplo.Utils.0.1.81\lib\net45\Dapplo.Utils.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="WindowsBase" />
@@ -77,12 +81,6 @@
     <Compile Include="Implementation\Setter.cs" />
     <Compile Include="InterceptorFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Dapplo.Utils\Dapplo.Utils\Dapplo.Utils.csproj">
-      <Project>{34c1972e-4b09-43f8-8a8a-1aacf09218c9}</Project>
-      <Name>Dapplo.Utils</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
