@@ -47,7 +47,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 
 		private readonly IList<IInterceptorExtension> _extensions = new List<IInterceptorExtension>();
 		private readonly IList<Getter> _getters = new List<Getter>();
-		private readonly IDictionary<string, List<Action<MethodCallInfo>>> _methodMap = new Dictionary<string, List<Action<MethodCallInfo>>>();
+		private readonly IDictionary<string, IList<Action<MethodCallInfo>>> _methodMap = new Dictionary<string, IList<Action<MethodCallInfo>>>();
 		private IDictionary<string, object> _properties = new Dictionary<string, object>(AbcComparerInstance);
 		private readonly IList<Setter> _setters = new List<Setter>();
 
@@ -137,7 +137,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// Called after the Initialization, this allows us to e.g. ignore errors
 		/// </summary>
 		/// <param name="extensions"></param>
-		protected virtual void AfterInitialization(IList<IInterceptorExtension> extensions)
+		protected virtual void AfterInitialization(IEnumerable<IInterceptorExtension> extensions)
 		{
 			// Call all AfterInitialization, this allows us to ignore errors
 			foreach (var extension in extensions)
@@ -149,9 +149,9 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		/// Call all extensions to initialize whatever needs to be initialized for a property
 		/// </summary>
-		/// <param name="propertyInfo"></param>
-		/// <param name="extensions"></param>
-		protected virtual void InitProperty(PropertyInfo propertyInfo, IList<IInterceptorExtension> extensions)
+		/// <param name="propertyInfo">PropertyInfo</param>
+		/// <param name="extensions">IList with IInterceptorExtension</param>
+		protected virtual void InitProperty(PropertyInfo propertyInfo, IEnumerable<IInterceptorExtension> extensions)
 		{
 			foreach (var extension in extensions)
 			{
@@ -249,12 +249,11 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     Register a method for the proxy
 		/// </summary>
-		/// <param name="methodname"></param>
-		/// <param name="methodAction"></param>
+		/// <param name="methodname">string</param>
+		/// <param name="methodAction">Action which accepts a MethodCallInfo</param>
 		public void RegisterMethod(string methodname, Action<MethodCallInfo> methodAction)
 		{
-			Log.Verbose().WriteLine("Registering method {0}", methodname);
-			List<Action<MethodCallInfo>> functions;
+			IList<Action<MethodCallInfo>> functions;
 			if (!_methodMap.TryGetValue(methodname, out functions))
 			{
 				functions = new List<Action<MethodCallInfo>>();
@@ -266,8 +265,8 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     Register a setter, this will be called when the proxy's set is called.
 		/// </summary>
-		/// <param name="order"></param>
-		/// <param name="setterAction"></param>
+		/// <param name="order">int to specify when (in what order) the setter is called</param>
+		/// <param name="setterAction">Action which accepts SetInfo</param>
 		public void RegisterSetter(int order, Action<SetInfo> setterAction)
 		{
 			_setters.Add(new Setter
@@ -281,8 +280,8 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     Register a getter, this will be called when the proxy's get is called.
 		/// </summary>
-		/// <param name="order"></param>
-		/// <param name="getterAction"></param>
+		/// <param name="order">int to specify when (in what order) the getter is called</param>
+		/// <param name="getterAction">Action which accepts GetInfo</param>
 		public void RegisterGetter(int order, Action<GetInfo> getterAction)
 		{
 			_getters.Add(new Getter
@@ -373,13 +372,13 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     The method invocation
 		/// </summary>
-		/// <param name="methodName"></param>
-		/// <param name="parameters"></param>
+		/// <param name="methodName">string</param>
+		/// <param name="parameters">params</param>
 		/// <returns>return value</returns>
 		public object Invoke(string methodName, params object[] parameters)
 		{
 			// First check the methods, so we can override all other access by specifying a method
-			List<Action<MethodCallInfo>> actions;
+			IList<Action<MethodCallInfo>> actions;
 			if (_methodMap.TryGetValue(methodName, out actions))
 			{
 				var methodCallInfo = new MethodCallInfo
@@ -413,7 +412,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     A default implementation of the get logic
 		/// </summary>
-		/// <param name="getInfo"></param>
+		/// <param name="getInfo">GetInfo</param>
 		private void DefaultGet(GetInfo getInfo)
 		{
 			object value;
@@ -443,7 +442,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <summary>
 		///     A default implementation of the set logic
 		/// </summary>
-		/// <param name="setInfo"></param>
+		/// <param name="setInfo">SetInfo</param>
 		private void DefaultSet(SetInfo setInfo)
 		{
 			var propertyType = PropertyTypes[setInfo.PropertyName];

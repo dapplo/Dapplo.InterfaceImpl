@@ -27,7 +27,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using Dapplo.Log.Facade;
 using System.Collections.Generic;
-using Dapplo.Utils.Extensions;
 
 #endregion
 
@@ -150,30 +149,16 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			{
 				if (processedProperties.ContainsKey(propertyInfo.Name))
 				{
-					if (Log.IsVerboseEnabled())
-					{
-						Log.Verbose().WriteLine("Skipping property {0} from {1}, already generated for {2}.", propertyInfo.Name, propertyInfo.DeclaringType.FriendlyName(), processedProperties[propertyInfo.Name].FriendlyName());
-					}
 					continue;
 				}
 				if (baseProperties.Contains(propertyInfo.Name))
 				{
-					if (Log.IsVerboseEnabled())
-					{
-						Log.Verbose().WriteLine("Skipping property {0} from {1}, as the base class implements this.", propertyInfo.Name, propertyInfo.DeclaringType.FriendlyName());
-					}
 					continue;
 				}
 				if (!propertyInfo.CanRead && !propertyInfo.CanWrite)
 				{
-					if (Log.IsVerboseEnabled())
-					{
-						Log.Verbose().WriteLine("Skipping property {0} from {1}, as it cannot be read or written.", propertyInfo.Name, propertyInfo.DeclaringType.FriendlyName());
-					}
 					continue;
 				}
-
-				Log.Verbose().WriteLine("Generating property {0} for {1}", propertyInfo.Name, propertyInfo.DeclaringType.FriendlyName());
 
 				// Create get and/or set
 				IlGetSetBuilder.BuildGetSet(typeBuilder, propertyInfo);
@@ -193,16 +178,13 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			{
 				if (baseMethods.Contains(methodInfo.Name))
 				{
-					Log.Verbose().WriteLine("Skipping method {0}, as the base class implements this.", methodInfo.Name);
 					continue;
 				}
 				if (SpecialPrefixes.Any(x => methodInfo.Name.StartsWith(x)))
 				{
-					Log.Verbose().WriteLine("Skipping method {0}", methodInfo.Name);
 					continue;
 				}
 				IlMethodBuilder.BuildMethod(typeBuilder, methodInfo);
-				Log.Verbose().WriteLine("Created method {0}", methodInfo.Name);
 			}
 
 			// Now generate the methods for the event redirections
@@ -213,7 +195,6 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			foreach (var eventInfo in eventInfos)
 			{
 				IlEventBuilder.BuildEvent(typeBuilder, eventInfo, baseMethods);
-				Log.Verbose().WriteLine("Created event {0}", eventInfo.Name);
 			}
 
 			Log.Verbose().WriteLine("Created type {0}", typeName);

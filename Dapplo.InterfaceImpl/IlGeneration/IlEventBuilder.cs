@@ -25,7 +25,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using Dapplo.Log.Facade;
 
 #endregion
 
@@ -38,7 +37,6 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 	{
 		private const BindingFlags AllBindings = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 		private static readonly MethodAttributes MethodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final;
-		private static readonly LogSource Log = new LogSource();
 
 		/// <summary>
 		///     Create the methods add_ remove_ and invoke_ (custom) event-name
@@ -62,10 +60,6 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 				methodBuilder.SetReturnType(typeof(void));
 				IlMethodBuilder.GenerateForwardingIlMethod(methodBuilder, methodName, parameters.Length, typeof(void));
 			}
-			else
-			{
-				Log.Verbose().WriteLine("Skipping already defined event method {0}", methodName);
-			}
 
 			// add_
 			methodName = $"add_{eventInfo.Name}";
@@ -77,10 +71,6 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 
 				IlMethodBuilder.GenerateForwardingIlMethod(methodBuilder, methodName, 1, typeof(void));
 			}
-			else
-			{
-				Log.Verbose().WriteLine("Skipping already defined event method {0}", methodName);
-			}
 
 			// remove_
 			methodName = $"remove_{eventInfo.Name}";
@@ -91,10 +81,6 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 				methodBuilder.SetReturnType(typeof(void));
 
 				IlMethodBuilder.GenerateForwardingIlMethod(methodBuilder, methodName, 1, typeof(void));
-			}
-			else
-			{
-				Log.Verbose().WriteLine("Skipping already defined event method {0}", methodName);
 			}
 		}
 	}
