@@ -50,7 +50,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// </summary>
 		/// <param name="propertyInfo">Property to get the default value for</param>
 		/// <returns>object with the type converted default value</returns>
-		private object GetConvertedDefaultValue(PropertyInfo propertyInfo)
+		private static object GetConvertedDefaultValue(PropertyInfo propertyInfo)
 		{
 			var defaultValue = propertyInfo.GetDefaultValue();
 			if (defaultValue != null)
@@ -65,7 +65,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Return the default value for a property
 		/// </summary>
-		private void GetDefaultValue(MethodCallInfo methodCallInfo)
+		private static void GetDefaultValue(MethodCallInfo methodCallInfo)
 		{
 			var propertyInfo = typeof (T).GetProperty(methodCallInfo.PropertyNameOf(0));
 			// Prevent ArgumentNullExceptions
@@ -109,11 +109,12 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		{
 			var propertyInfo = typeof (T).GetProperty(methodCallInfo.PropertyNameOf(0));
 			// Prevent ArgumentNullExceptions
-			if (propertyInfo != null)
+			if (propertyInfo == null)
 			{
-				Exception ex;
-				RestoreToDefault(methodCallInfo.Interceptor, propertyInfo, out ex);
+				return;
 			}
+			Exception ex;
+			RestoreToDefault(methodCallInfo.Interceptor, propertyInfo, out ex);
 		}
 
 		/// <summary>

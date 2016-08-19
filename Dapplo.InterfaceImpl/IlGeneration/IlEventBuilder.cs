@@ -36,7 +36,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 	internal static class IlEventBuilder
 	{
 		private const BindingFlags AllBindings = BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-		private static readonly MethodAttributes MethodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final;
+		private const MethodAttributes DefaultMethodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final;
 
 		/// <summary>
 		///     Create the methods add_ remove_ and invoke_ (custom) event-name
@@ -55,7 +55,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			var methodName = $"invoke_{eventInfo.Name}";
 			if (!baseMethods.Contains(methodName))
 			{
-				var methodBuilder = typeBuilder.DefineMethod(methodName, MethodAttributes);
+				var methodBuilder = typeBuilder.DefineMethod(methodName, DefaultMethodAttributes);
 				methodBuilder.SetParameters(parameterTypes);
 				methodBuilder.SetReturnType(typeof(void));
 				IlMethodBuilder.GenerateForwardingIlMethod(methodBuilder, methodName, parameters.Length, typeof(void));
@@ -65,7 +65,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			methodName = $"add_{eventInfo.Name}";
 			if (!baseMethods.Contains(methodName))
 			{
-				var methodBuilder = typeBuilder.DefineMethod(methodName, MethodAttributes);
+				var methodBuilder = typeBuilder.DefineMethod(methodName, DefaultMethodAttributes);
 				methodBuilder.SetParameters(eventInfo.EventHandlerType);
 				methodBuilder.SetReturnType(typeof(void));
 
@@ -76,7 +76,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			methodName = $"remove_{eventInfo.Name}";
 			if (!baseMethods.Contains(methodName))
 			{
-				var methodBuilder = typeBuilder.DefineMethod(methodName, MethodAttributes);
+				var methodBuilder = typeBuilder.DefineMethod(methodName, DefaultMethodAttributes);
 				methodBuilder.SetParameters(eventInfo.EventHandlerType);
 				methodBuilder.SetReturnType(typeof(void));
 

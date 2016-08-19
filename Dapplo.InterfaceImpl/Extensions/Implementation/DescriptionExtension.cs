@@ -38,7 +38,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <summary>
 		///     Return the description for a property
 		/// </summary>
-		private void GetDescription(MethodCallInfo methodCallInfo)
+		private static void GetDescription(MethodCallInfo methodCallInfo)
 		{
 			var propertyInfo = typeof (T).GetProperty(methodCallInfo.PropertyNameOf(0));
 			methodCallInfo.ReturnValue = propertyInfo.GetDescription();

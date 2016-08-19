@@ -26,7 +26,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Log.Facade;
 
 #endregion
 
@@ -37,14 +36,11 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 	/// </summary>
 	internal static class IlGetSetBuilder
 	{
-		private static readonly LogSource Log = new LogSource();
-
 		private static readonly MethodInfo GetValue = typeof (GetInfo).GetProperty("Value").GetGetMethod();
 		private static readonly MethodInfo InterceptorGet = typeof (IExtensibleInterceptor).GetMethod("Get");
 		private static readonly MethodInfo InterceptorSet = typeof (IExtensibleInterceptor).GetMethod("Set");
 
-		private static readonly MethodAttributes SetGetMethodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName |
-																		MethodAttributes.Virtual | MethodAttributes.Final;
+		private const MethodAttributes SetGetMethodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.Virtual | MethodAttributes.Final;
 
 		/// <summary>
 		///     Create getter and/or setter
@@ -54,8 +50,8 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		internal static void BuildGetSet(TypeBuilder typeBuilder, PropertyInfo propertyInfo)
 		{
 			// Special logic to allow indexer
-			var callingConventions = CallingConventions.Any;
-			var propertyAttributes = PropertyAttributes.HasDefault;
+			const CallingConventions callingConventions = CallingConventions.Any;
+			const PropertyAttributes propertyAttributes = PropertyAttributes.HasDefault;
 			var propertyBuilder = typeBuilder.DefineProperty(propertyInfo.Name, propertyAttributes, callingConventions, propertyInfo.PropertyType, null);
 
 			// Create Get if the property can be read

@@ -162,7 +162,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 				catch (Exception ex)
 				{
 					Log.Warn().WriteLine(ex.Message);
-					InitializationErrors.AddOrOverwrite(propertyInfo.Name, ex);
+					InitializationErrors[propertyInfo.Name] = ex;
 				}
 			}
 		}
@@ -209,7 +209,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			{
 				foreach (var key in value.Keys)
 				{
-					_properties.AddOrOverwrite(key, value[key]);
+					_properties[key] = value[key];
 				}
 			}
 		}
@@ -379,30 +379,30 @@ namespace Dapplo.InterfaceImpl.Implementation
 		{
 			// First check the methods, so we can override all other access by specifying a method
 			IList<Action<MethodCallInfo>> actions;
-			if (_methodMap.TryGetValue(methodName, out actions))
+			if (!_methodMap.TryGetValue(methodName, out actions))
 			{
-				var methodCallInfo = new MethodCallInfo
-				{
-					Interceptor = this,
-					MethodName = methodName,
-					Arguments = parameters
-				};
-				foreach (var action in actions)
-				{
-					action(methodCallInfo);
-					if (methodCallInfo.HasError)
-					{
-						break;
-					}
-				}
+				throw new NotImplementedException();
+			}
+			var methodCallInfo = new MethodCallInfo
+			{
+				Interceptor = this,
+				MethodName = methodName,
+				Arguments = parameters
+			};
+			foreach (var action in actions)
+			{
+				action(methodCallInfo);
 				if (methodCallInfo.HasError)
 				{
-					throw methodCallInfo.Error;
+					break;
 				}
-				// TODO: make out parameters possible
-				return methodCallInfo.ReturnValue;
 			}
-			throw new NotImplementedException();
+			if (methodCallInfo.HasError)
+			{
+				throw methodCallInfo.Error;
+			}
+			// TODO: make out parameters possible
+			return methodCallInfo.ReturnValue;
 		}
 
 		#endregion
@@ -449,7 +449,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 
 			var newValue = propertyType.ConvertOrCastValueToType(setInfo.NewValue);
 			// Add the value to the dictionary
-			setInfo.Interceptor.Properties.AddOrOverwrite(setInfo.PropertyName, newValue);
+			setInfo.Interceptor.Properties[setInfo.PropertyName] = newValue;
 		}
 
 		#endregion

@@ -27,7 +27,6 @@ using System.Linq;
 using Dapplo.InterfaceImpl.Extensions.Implementation;
 using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Utils.Extensions;
 using Dapplo.Log.Facade;
 
 #endregion
@@ -70,7 +69,7 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="baseType">should extend ExtensibleInterceptorImpl</param>
 		public static void DefineBaseTypeForInterface(Type interfaceType, Type baseType)
 		{
-			BaseTypeMap.AddOrOverwrite(interfaceType, baseType);
+			BaseTypeMap[interfaceType] = baseType;
 		}
 
 		/// <summary>
@@ -81,7 +80,7 @@ namespace Dapplo.InterfaceImpl
 		/// <param name="defaultInterfaces"></param>
 		public static void DefineDefaultInterfaces(Type interfaceType, Type[] defaultInterfaces)
 		{
-			DefaultInterfacesMap.AddOrOverwrite(interfaceType, defaultInterfaces);
+			DefaultInterfacesMap[interfaceType] = defaultInterfaces;
 		}
 
 		/// <summary>
@@ -93,7 +92,7 @@ namespace Dapplo.InterfaceImpl
 		{
 			lock (TypeMap)
 			{
-				TypeMap.AddOrOverwrite(interfaceType, implementation);
+				TypeMap[interfaceType] = implementation;
 			}
 		}
 
@@ -177,11 +176,12 @@ namespace Dapplo.InterfaceImpl
 						var baseType = typeof(ExtensibleInterceptorImpl<>);
 						foreach (var implementingInterface in implementingInterfaces)
 						{
-							if (BaseTypeMap.ContainsKey(implementingInterface))
+							if (!BaseTypeMap.ContainsKey(implementingInterface))
 							{
-								baseType = BaseTypeMap[implementingInterface];
-								break;
+								continue;
 							}
+							baseType = BaseTypeMap[implementingInterface];
+							break;
 						}
 						// Make sure we have a non generic type, by filling in the "blanks"
 						if (baseType.IsGenericType)
@@ -192,7 +192,7 @@ namespace Dapplo.InterfaceImpl
 					}
 
 					// Register the implementation for the interface
-					TypeMap.AddOrOverwrite(interfaceType, implementingType);
+					TypeMap[interfaceType] = implementingType;
 				}
 			}
 

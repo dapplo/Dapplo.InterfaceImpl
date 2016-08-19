@@ -22,6 +22,7 @@
 #region using
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -35,7 +36,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 	/// </summary>
 	internal static class IlMethodBuilder
 	{
-		private static readonly MethodAttributes MethodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final;
+		private const MethodAttributes DefaultMethodAttributes = MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.Final;
 		private static readonly MethodInfo InterceptorInvoke = typeof (IExtensibleInterceptor).GetMethod("Invoke");
 
 		/// <summary>
@@ -49,7 +50,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 				from parameterInfo in methodInfo.GetParameters()
 				select parameterInfo.ParameterType).ToArray();
 
-			var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, MethodAttributes);
+			var methodBuilder = typeBuilder.DefineMethod(methodInfo.Name, DefaultMethodAttributes);
 			methodBuilder.SetParameters(parameterTypes);
 			methodBuilder.SetReturnType(methodInfo.ReturnType);
 
@@ -113,10 +114,10 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		///     Gets the argument names from an array of generic argument types.
 		/// </summary>
 		/// <param name="genericArguments">The generic arguments.</param>
-		private static string[] GetArgumentNames(Type[] genericArguments)
+		private static string[] GetArgumentNames(IReadOnlyList<Type> genericArguments)
 		{
-			var genericArgumentNames = new string[genericArguments.Length];
-			for (var i = 0; i < genericArguments.Length; i++)
+			var genericArgumentNames = new string[genericArguments.Count];
+			for (var i = 0; i < genericArguments.Count; i++)
 			{
 				genericArgumentNames[i] = genericArguments[i].Name;
 			}

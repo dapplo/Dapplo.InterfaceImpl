@@ -51,7 +51,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		///     IsWriteProtected logic checks if the supplied property Lambda expression is write protected.
 		/// </summary>
 		/// <param name="methodCallInfo">IMethodCallMessage</param>
-		private void Clone(MethodCallInfo methodCallInfo)
+		private static void Clone(MethodCallInfo methodCallInfo)
 		{
 			methodCallInfo.ReturnValue = methodCallInfo.Interceptor.Clone();
 		}

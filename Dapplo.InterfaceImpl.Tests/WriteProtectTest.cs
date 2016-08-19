@@ -60,6 +60,7 @@ namespace Dapplo.InterfaceImpl.Tests
 		{
 			_writeProtectTest.StartWriteProtecting();
 			_writeProtectTest.Age = 30;
+			Assert.True(_writeProtectTest.IsWriteProtected(nameof(IWriteProtectTest.Age)));
 			Assert.True(_writeProtectTest.IsWriteProtected(x => x.Age));
 			_writeProtectTest.StopWriteProtecting();
 			Assert.True(_writeProtectTest.IsWriteProtected(x => x.Age));

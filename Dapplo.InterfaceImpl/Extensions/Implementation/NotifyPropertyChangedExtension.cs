@@ -80,17 +80,18 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				return;
 			}
 			// Create the event if the property changed
-			if (!setInfo.HasOldValue || !Equals(setInfo.NewValue, setInfo.OldValue))
+			if (setInfo.HasOldValue && Equals(setInfo.NewValue, setInfo.OldValue))
 			{
-				// Find the real property name
-				var propertyName = setInfo.Interceptor.PropertyNameFor(setInfo.PropertyName);
-				if (propertyName == null)
-				{
-					return;
-				}
-				var propertyChangedEventArgs = new PropertyChangedEventArgs(propertyName);
-				InvokePropertyChanged(setInfo.Interceptor, propertyChangedEventArgs);
+				return;
 			}
+			// Find the real property name
+			var propertyName = setInfo.Interceptor.PropertyNameFor(setInfo.PropertyName);
+			if (propertyName == null)
+			{
+				return;
+			}
+			var propertyChangedEventArgs = new PropertyChangedEventArgs(propertyName);
+			InvokePropertyChanged(setInfo.Interceptor, propertyChangedEventArgs);
 		}
 
 		/// <summary>
