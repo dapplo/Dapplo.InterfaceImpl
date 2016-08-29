@@ -28,7 +28,6 @@ using Dapplo.Log.Facade;
 using Xunit;
 using Xunit.Abstractions;
 using Dapplo.Utils.Events;
-using Dapplo.Utils.Extensions;
 
 #endregion
 
@@ -56,7 +55,7 @@ namespace Dapplo.InterfaceImpl.Tests
 		{
 			PropertyChangedEventArgs testValue = null;
 			var eO = EventObservable.From(_notifyPropertyChangedTest);
-			eO.OnEach(pce => testValue = pce.Args);
+			eO.ForEach(pce => testValue = pce.Args);
 			eO.Trigger(EventData.Create(this, new PropertyChangedEventArgs("Name")));
 			Assert.Equal("Name", testValue.PropertyName); 
 		}
