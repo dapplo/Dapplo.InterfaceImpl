@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Generic;
 using Dapplo.InterfaceImpl.Implementation;
+using Dapplo.Utils;
 
 #endregion
 
@@ -38,7 +39,7 @@ namespace Dapplo.InterfaceImpl
 	///     Properties of the "interface" have a backingstore implemented via the special property "Properties" and some other
 	///     helping properties.
 	/// </summary>
-	public interface IExtensibleInterceptor : ICloneable
+	public interface IExtensibleInterceptor : ICloneable, IHaveEvents
 	{
 		/// <summary>
 		///     Errors which occur during initialization are stored here

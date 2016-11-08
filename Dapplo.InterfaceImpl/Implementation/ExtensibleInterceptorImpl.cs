@@ -26,9 +26,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Dapplo.Utils;
-using Dapplo.Utils.Events;
 using Dapplo.Utils.Extensions;
 
 #endregion
@@ -183,7 +182,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			clonedObject._properties = new Dictionary<string, object>(_properties, AbcComparerInstance);
 
 			// Make sure all event handlers are removed, to prevent memory leaks and weird behaviors
-			EventObservable.RemoveEventHandlers(clonedObject);
+			EventExtensions.RemoveEventHandlers(clonedObject);
 			return clonedObject;
 		}
 

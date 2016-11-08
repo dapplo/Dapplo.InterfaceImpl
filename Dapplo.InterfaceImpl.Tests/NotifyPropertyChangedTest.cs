@@ -24,10 +24,11 @@
 using System.ComponentModel;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Xunit;
 using Xunit.Abstractions;
-using Dapplo.Utils.Events;
+using System;
+using Dapplo.Utils.Notify;
 
 #endregion
 
@@ -54,10 +55,11 @@ namespace Dapplo.InterfaceImpl.Tests
 		public void TestNotifyPropertyChanged_EventObservable()
 		{
 			PropertyChangedEventArgs testValue = null;
-			var eO = EventObservable.From(_notifyPropertyChangedTest);
-			eO.ForEach(pce => testValue = pce.Args);
-			eO.Trigger(EventData.Create(this, new PropertyChangedEventArgs("Name")));
-			Assert.Equal("Name", testValue.PropertyName); 
+			using (_notifyPropertyChangedTest.OnPropertyChanged().Subscribe(pce => testValue = pce))
+			{
+				_notifyPropertyChangedTest.Name = "Test";
+				Assert.Equal("Name", testValue.PropertyName);
+			}
 		}
 
 		[Fact]

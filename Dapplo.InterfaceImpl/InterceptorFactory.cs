@@ -27,7 +27,7 @@ using System.Linq;
 using Dapplo.InterfaceImpl.Extensions.Implementation;
 using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Implementation;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 
 #endregion
 

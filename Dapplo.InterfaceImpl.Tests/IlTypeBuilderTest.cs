@@ -25,7 +25,7 @@ using System.IO;
 using Dapplo.InterfaceImpl.IlGeneration;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
-using Dapplo.Log.Facade;
+using Dapplo.Log;
 using Xunit;
 using Xunit.Abstractions;
 using Dapplo.InterfaceImpl.Implementation;
