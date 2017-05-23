@@ -21,6 +21,7 @@
 
 #region using
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Dapplo.InterfaceImpl.Extensions;
@@ -39,5 +40,9 @@ namespace Dapplo.InterfaceImpl.Tests.Interfaces
 
 		[DefaultValue("10,20,30")]
 		IList<int> Ages { get; set; }
-	}
+
+
+        [DefaultValue("http://1.dapplo.net,http://2.dapplo.net")]
+        IList<Uri> MyUris { get; set; }
+    }
 }

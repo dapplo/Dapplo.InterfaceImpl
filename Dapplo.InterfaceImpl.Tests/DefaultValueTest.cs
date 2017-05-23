@@ -21,6 +21,7 @@
 
 #region using
 
+using System;
 using Dapplo.InterfaceImpl.Tests.Interfaces;
 using Dapplo.Log.XUnit;
 using Dapplo.Log;
@@ -31,58 +32,64 @@ using Xunit.Abstractions;
 
 namespace Dapplo.InterfaceImpl.Tests
 {
-	/// <summary>
-	///     Test case to show how the default value works
-	/// </summary>
-	public class DefaultValueTest
-	{
-		private readonly IDefaultValueTest _defaultValueTest;
+    /// <summary>
+    ///     Test case to show how the default value works
+    /// </summary>
+    public class DefaultValueTest
+    {
+        private readonly IDefaultValueTest _defaultValueTest;
 
-		public DefaultValueTest(ITestOutputHelper testOutputHelper)
-		{
-			LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
-			_defaultValueTest = InterceptorFactory.New<IDefaultValueTest>();
-		}
+        public DefaultValueTest(ITestOutputHelper testOutputHelper)
+        {
+            LogSettings.RegisterDefaultLogger<XUnitLogger>(LogLevels.Verbose, testOutputHelper);
+            _defaultValueTest = InterceptorFactory.New<IDefaultValueTest>();
+        }
 
-		[Fact]
-		public void TestDefaultValue()
-		{
-			Assert.Equal(21, _defaultValueTest.Age);
-			Assert.Equal(3, _defaultValueTest.Ages.Count);
-		}
+        [Fact]
+        public void TestDefaultValue()
+        {
+            Assert.Equal(21, _defaultValueTest.Age);
+            Assert.Equal(3, _defaultValueTest.Ages.Count);
+        }
 
-		[Fact]
-		public void TestDefaultValueOverwrite()
-		{
-			var defaultValueOverwriteTest = InterceptorFactory.New<IDefaultValueOverwriteTest>();
-			Assert.Equal(42, defaultValueOverwriteTest.Age);
-		}
+        [Fact]
+        public void TestDefaultValueOverwrite()
+        {
+            var defaultValueOverwriteTest = InterceptorFactory.New<IDefaultValueOverwriteTest>();
+            Assert.Equal(42, defaultValueOverwriteTest.Age);
+        }
 
-		[Fact]
-		public void TestDefaultValueAtrribute()
-		{
-			var defaultValue = _defaultValueTest.DefaultValueFor(x => x.Age);
-			Assert.Equal(21, defaultValue);
-			defaultValue = _defaultValueTest.DefaultValueFor("Age");
-			Assert.Equal(21, defaultValue);
-		}
+        [Fact]
+        public void TestDefaultValueAtrribute()
+        {
+            var defaultValue = _defaultValueTest.DefaultValueFor(x => x.Age);
+            Assert.Equal(21, defaultValue);
+            defaultValue = _defaultValueTest.DefaultValueFor("Age");
+            Assert.Equal(21, defaultValue);
+        }
 
-		[Fact]
-		public void TestRestoreToDefaultValue()
-		{
-			_defaultValueTest.Age = 22;
-			Assert.Equal(22, _defaultValueTest.Age);
-			_defaultValueTest.RestoreToDefault(x => x.Age);
-			Assert.Equal(21, _defaultValueTest.Age);
-		}
+        [Fact]
+        public void TestRestoreToDefaultValue()
+        {
+            _defaultValueTest.Age = 22;
+            Assert.Equal(22, _defaultValueTest.Age);
+            _defaultValueTest.RestoreToDefault(x => x.Age);
+            Assert.Equal(21, _defaultValueTest.Age);
+        }
 
-		[Fact]
-		public void TestDefaultValueWithError()
-		{
-			// Used to be:
-			//var ex = Assert.Throws<InvalidCastException>(() => ProxyBuilder.CreateProxy<IDefaultValueWithErrorTest>());
-			// Now it should run without error
-			InterceptorFactory.New<IDefaultValueWithErrorTest>();
-		}
-	}
+        [Fact]
+        public void TestUriArrayDefaultValue()
+        {
+            Assert.Contains(new Uri("http://1.dapplo.net"), _defaultValueTest.MyUris);
+        }
+
+        [Fact]
+        public void TestDefaultValueWithError()
+        {
+            // Used to be:
+            //var ex = Assert.Throws<InvalidCastException>(() => ProxyBuilder.CreateProxy<IDefaultValueWithErrorTest>());
+            // Now it should run without error
+            InterceptorFactory.New<IDefaultValueWithErrorTest>();
+        }
+    }
 }

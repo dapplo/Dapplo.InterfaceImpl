@@ -36,9 +36,9 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 	/// </summary>
 	internal static class IlGetSetBuilder
 	{
-		private static readonly MethodInfo GetValue = typeof (GetInfo).GetProperty("Value").GetGetMethod();
-		private static readonly MethodInfo InterceptorGet = typeof (IExtensibleInterceptor).GetMethod("Get");
-		private static readonly MethodInfo InterceptorSet = typeof (IExtensibleInterceptor).GetMethod("Set");
+		private static readonly MethodInfo GetValue = typeof(GetInfo).GetProperty("Value")?.GetGetMethod();
+		private static readonly MethodInfo InterceptorGet = typeof(IExtensibleInterceptor).GetMethod("Get");
+		private static readonly MethodInfo InterceptorSet = typeof(IExtensibleInterceptor).GetMethod("Set");
 
 		private const MethodAttributes SetGetMethodAttributes = MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName | MethodAttributes.Virtual | MethodAttributes.Final;
 
