@@ -89,19 +89,26 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		/// <returns>bool with true if found</returns>
 		public bool TryGetType(string fqTypeName, out Type type)
 		{
-
-			type = _assemblyBuilder.GetTypes().FirstOrDefault(x => x.FullName == fqTypeName);
-			if (type == null)
+			try
 			{
-				type = Type.GetType(fqTypeName);
-				if (type != null)
+				type = _assemblyBuilder.GetTypes().FirstOrDefault(x => x.FullName == fqTypeName);
+				if (type == null)
 				{
-					Log.Verbose().WriteLine("Found Type for {0}", fqTypeName);
+					type = Type.GetType(fqTypeName);
+					if (type != null)
+					{
+						Log.Verbose().WriteLine("Found Type for {0}", fqTypeName);
+					}
+				}
+				else
+				{
+					Log.Verbose().WriteLine("Found cached instance of {0}", fqTypeName);
 				}
 			}
-			else
+			catch (Exception ex)
 			{
-				Log.Verbose().WriteLine("Found cached instance of {0}", fqTypeName);
+				Log.Error().WriteLine(ex, "Couldn't find type for {0}", fqTypeName);
+				type = null;
 			}
 
 			return type != null;
