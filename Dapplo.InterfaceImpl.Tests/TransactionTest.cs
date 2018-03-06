@@ -66,11 +66,11 @@ namespace Dapplo.InterfaceImpl.Tests
 			var properties = _transactionTest;
 			properties.Age = 30;
 			properties.StartTransaction();
-			Assert.Equal(properties.Age, 30);
+			Assert.Equal(30, properties.Age);
 			properties.Age = 35;
-			Assert.Equal(properties.Age, 35);
+			Assert.Equal(35, properties.Age);
 			properties.RollbackTransaction();
-			Assert.Equal(properties.Age, 30);
+			Assert.Equal(30, properties.Age);
 		}
 	}
 }
