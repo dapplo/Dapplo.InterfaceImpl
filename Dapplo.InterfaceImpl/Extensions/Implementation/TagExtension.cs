@@ -45,8 +45,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		private void GetTagValue(MethodCallInfo methodCallInfo)
 		{
 			methodCallInfo.ReturnValue = false;
-			IDictionary<object, object> tags;
-			if (!_taggedProperties.TryGetValue(methodCallInfo.PropertyNameOf(0), out tags))
+			if (!_taggedProperties.TryGetValue(methodCallInfo.PropertyNameOf(0), out var tags))
 			{
 				return;
 			}
@@ -82,13 +81,12 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			var customAttributes = Attribute.GetCustomAttributes(propertyInfo);
 			foreach (var customAttribute in customAttributes)
 			{
-				var tagAttribute = customAttribute as TagAttribute;
-				if (tagAttribute == null)
+				if (!(customAttribute is TagAttribute tagAttribute))
 				{
 					continue;
 				}
-				IDictionary<object, object> tags;
-				if (!_taggedProperties.TryGetValue(propertyInfo.Name, out tags))
+
+				if (!_taggedProperties.TryGetValue(propertyInfo.Name, out var tags))
 				{
 					tags = new Dictionary<object, object>();
 					_taggedProperties.Add(propertyInfo.Name, tags);
@@ -104,8 +102,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		private void IsTaggedWith(MethodCallInfo methodCallInfo)
 		{
 			methodCallInfo.ReturnValue = false;
-			IDictionary<object, object> tags;
-			if (_taggedProperties.TryGetValue(methodCallInfo.PropertyNameOf(0), out tags))
+			if (_taggedProperties.TryGetValue(methodCallInfo.PropertyNameOf(0), out var tags))
 			{
 				methodCallInfo.ReturnValue = tags.ContainsKey(methodCallInfo.Arguments[1]);
 			}

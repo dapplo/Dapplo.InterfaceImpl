@@ -182,7 +182,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			clonedObject._properties = new Dictionary<string, object>(_properties, AbcComparerInstance);
 
 			// Make sure all event handlers are removed, to prevent memory leaks and weird behaviors
-			EventExtensions.RemoveEventHandlers(clonedObject);
+			clonedObject.RemoveEventHandlers();
 			return clonedObject;
 		}
 
@@ -228,8 +228,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		{
 			get
 			{
-				object value;
-				Properties.TryGetValue(key, out value);
+				Properties.TryGetValue(key, out var value);
 				return value;
 			}
 		}
@@ -252,8 +251,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <param name="methodAction">Action which accepts a MethodCallInfo</param>
 		public void RegisterMethod(string methodname, Action<MethodCallInfo> methodAction)
 		{
-			IList<Action<MethodCallInfo>> functions;
-			if (!_methodMap.TryGetValue(methodname, out functions))
+			if (!_methodMap.TryGetValue(methodname, out var functions))
 			{
 				functions = new List<Action<MethodCallInfo>>();
 				_methodMap.Add(methodname, functions);
@@ -302,14 +300,12 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <param name="propertyName">Name of the property</param>
 		public GetInfo Get(string propertyName)
 		{
-			Type propertyType;
-			if (!PropertyTypes.TryGetValue(propertyName, out propertyType))
+			if (!PropertyTypes.TryGetValue(propertyName, out var propertyType))
 			{
 				propertyType = typeof(object);
 			}
 
-			object value;
-			var hasValue = _properties.TryGetValue(propertyName, out value);
+			var hasValue = _properties.TryGetValue(propertyName, out var value);
 			var getInfo = new GetInfo
 			{
 				Interceptor = this,
@@ -341,8 +337,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		{
 			var propertyInfo = PropertyTypes[propertyName];
 
-			object oldValue;
-			var hasOldValue = _properties.TryGetValue(propertyName, out oldValue);
+			var hasOldValue = _properties.TryGetValue(propertyName, out var oldValue);
 			var setInfo = new SetInfo
 			{
 				Interceptor = this,
@@ -377,8 +372,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		public object Invoke(string methodName, params object[] parameters)
 		{
 			// First check the methods, so we can override all other access by specifying a method
-			IList<Action<MethodCallInfo>> actions;
-			if (!_methodMap.TryGetValue(methodName, out actions))
+			if (!_methodMap.TryGetValue(methodName, out var actions))
 			{
 				throw new NotImplementedException();
 			}
@@ -414,13 +408,12 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <param name="getInfo">GetInfo</param>
 		private void DefaultGet(GetInfo getInfo)
 		{
-			object value;
 			if (getInfo.PropertyName == null)
 			{
 				getInfo.HasValue = false;
 				return;
 			}
-			if (getInfo.Interceptor.Properties.TryGetValue(getInfo.PropertyName, out value))
+			if (getInfo.Interceptor.Properties.TryGetValue(getInfo.PropertyName, out var value))
 			{
 				getInfo.Value = value;
 				getInfo.HasValue = true;
@@ -428,8 +421,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 			else
 			{
 				// Make sure we return the right default value, when passed by-ref there needs to be a value
-				Type propertyType;
-				if (!PropertyTypes.TryGetValue(getInfo.PropertyName, out propertyType))
+				if (!PropertyTypes.TryGetValue(getInfo.PropertyName, out var propertyType))
 				{
 					propertyType = typeof(object);
 				}

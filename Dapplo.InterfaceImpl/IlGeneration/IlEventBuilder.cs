@@ -21,6 +21,7 @@
 
 #region using
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -46,7 +47,12 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 		/// <param name="baseMethods">List of string with the method names of the base class, this is used to decide what can be skipped</param>
 		internal static void BuildEvent(TypeBuilder typeBuilder, EventInfo eventInfo, IList<string> baseMethods)
 		{
-			var parameters = eventInfo.EventHandlerType.GetMethod("Invoke", AllBindings).GetParameters();
+			if (eventInfo == null)
+			{
+				throw new ArgumentNullException(nameof(eventInfo));
+			}
+				
+			var parameters = eventInfo.EventHandlerType.GetMethod("Invoke", AllBindings)?.GetParameters() ?? new ParameterInfo[]{};
 			var parameterTypes = (
 				from parameterInfo in parameters
 				select parameterInfo.ParameterType).ToArray();

@@ -36,8 +36,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 
 		public int CompareTo(object obj)
 		{
-			var otherGetterSetter = obj as GetterSetter;
-			if (otherGetterSetter != null)
+			if (obj is GetterSetter otherGetterSetter)
 			{
 				return Order.CompareTo(otherGetterSetter.Order);
 			}

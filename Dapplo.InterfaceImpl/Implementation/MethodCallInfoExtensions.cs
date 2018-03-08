@@ -43,8 +43,7 @@ namespace Dapplo.InterfaceImpl.Implementation
 		/// <returns>Property name</returns>
 		public static string PropertyNameOf(this MethodCallInfo methodCallInfo, int index)
 		{
-			var propertyName = methodCallInfo.Arguments[index] as string;
-			if (propertyName == null)
+			if (!(methodCallInfo.Arguments[index] is string propertyName))
 			{
 				var propertyExpression = (LambdaExpression) methodCallInfo.Arguments[index];
 				propertyName = propertyExpression.GetMemberName();

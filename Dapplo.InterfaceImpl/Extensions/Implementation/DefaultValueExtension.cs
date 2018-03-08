@@ -94,8 +94,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 		/// <param name="propertyInfo"></param>
 		public override void InitProperty(IExtensibleInterceptor interceptor, PropertyInfo propertyInfo)
 		{
-			Exception ex;
-			RestoreToDefault(interceptor, propertyInfo, out ex);
+			RestoreToDefault(interceptor, propertyInfo, out var ex);
 			if (ex != null)
 			{
 				throw ex;
@@ -113,8 +112,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			{
 				return;
 			}
-			Exception ex;
-			RestoreToDefault(methodCallInfo.Interceptor, propertyInfo, out ex);
+			RestoreToDefault(methodCallInfo.Interceptor, propertyInfo, out var _);
 		}
 
 		/// <summary>

@@ -62,11 +62,13 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			}
 
 			// Create Set if the property can be written
-			if (propertyInfo.CanWrite)
+			if (!propertyInfo.CanWrite)
 			{
-				var setterBuilder = BuildSetter(typeBuilder, propertyInfo);
-				propertyBuilder.SetSetMethod(setterBuilder);
+				return;
 			}
+
+			var setterBuilder = BuildSetter(typeBuilder, propertyInfo);
+			propertyBuilder.SetSetMethod(setterBuilder);
 		}
 
 		/// <summary>

@@ -55,8 +55,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			lock (IlTypeBuilderCache)
 			{
 				var key = new Tuple<bool, string>(allowSave, assemblyNameString);
-				IlTypeBuilder result;
-				if (!IlTypeBuilderCache.TryGetValue(key, out result))
+				if (!IlTypeBuilderCache.TryGetValue(key, out var result))
 				{
 					result = new IlTypeBuilder(allowSave, assemblyNameString);
 					IlTypeBuilderCache.Add(key, result);
@@ -126,8 +125,7 @@ namespace Dapplo.InterfaceImpl.IlGeneration
 			Log.Verbose().WriteLine("Creating type {0}", typeName);
 
 			// Make sure to return the type from "cache" if possible
-			Type cachedType;
-			if (TryGetType(typeName, out cachedType))
+			if (TryGetType(typeName, out var cachedType))
 			{
 				return cachedType;
 			}

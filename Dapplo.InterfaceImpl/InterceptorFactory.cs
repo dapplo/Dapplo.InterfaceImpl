@@ -132,8 +132,7 @@ namespace Dapplo.InterfaceImpl
 			foreach (var implementingInterface in implementingInterfaces.ToList())
 			{
 				implementingAndDefaultInterfaces.Add(implementingInterface);
-				Type[] defaultInterfaces;
-				if (DefaultInterfacesMap.TryGetValue(implementingInterface, out defaultInterfaces))
+				if (DefaultInterfacesMap.TryGetValue(implementingInterface, out var defaultInterfaces))
 				{
 					implementingAndDefaultInterfaces.AddRange(defaultInterfaces);
 				}
@@ -154,7 +153,11 @@ namespace Dapplo.InterfaceImpl
 					{
 						typeName = typeName.Substring(1);
 					}
-					var fqTypeName = interfaceType.FullName.Replace(interfaceType.Name, string.Format(typeName, typeIndex));
+					var fqTypeName = interfaceType.FullName?.Replace(interfaceType.Name, string.Format(typeName, typeIndex));
+					if (fqTypeName == null)
+					{
+						throw new InvalidOperationException($"{interfaceType} doesn't have a name?");
+					}
 
 					// Only create it if it was not already created via another way
 					while (TypeBuilder.TryGetType(string.Format(fqTypeName, typeIndex), out implementingType))
@@ -202,11 +205,9 @@ namespace Dapplo.InterfaceImpl
 			}
 
 			// Create an instance for the implementation
-			var interceptor = Activator.CreateInstance(implementingType) as IExtensibleInterceptor;
-
-			if (interceptor == null)
+			if (!(Activator.CreateInstance(implementingType) is IExtensibleInterceptor interceptor))
 			{
-				throw new ArgumentNullException(nameof(interceptor), "Internal error, the created type didn't implement IExtensibleInterceptor.");
+				throw new InvalidCastException("Internal error, the created type didn't implement IExtensibleInterceptor.");
 			}
 
 			var genericImplementingInterfaces = implementingInterfaces.Where(x => x.IsGenericType).Select(x => x.GetGenericTypeDefinition()).ToList();

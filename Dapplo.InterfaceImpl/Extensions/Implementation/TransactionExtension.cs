@@ -71,8 +71,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 				return;
 			}
 			// Get the value from the dictionary
-			object value;
-			if (!_transactionProperties.TryGetValue(getInfo.PropertyName, out value))
+			if (!_transactionProperties.TryGetValue(getInfo.PropertyName, out var value))
 			{
 				return;
 			}
@@ -90,8 +89,8 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 			{
 				return;
 			}
-			object oldValue;
-			if (_transactionProperties.TryGetValue(setInfo.PropertyName, out oldValue))
+
+			if (_transactionProperties.TryGetValue(setInfo.PropertyName, out var oldValue))
 			{
 				_transactionProperties[setInfo.PropertyName] = setInfo.NewValue;
 				setInfo.OldValue = oldValue;
