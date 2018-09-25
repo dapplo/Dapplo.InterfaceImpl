@@ -70,13 +70,7 @@ Task("PublishPackages")
 Task("Documentation")
 	.Does(() =>
 {
-	// Run DocFX
-	DocFxMetadata("./doc/docfx.json");
-	DocFxBuild("./doc/docfx.json");
-	
-	CreateDirectory("artifacts");
-	// Archive the generated site
-	Zip("./doc/_site", "./artifacts/site.zip");
+	// No docfx yet
 });
 
 // Run the XUnit tests via OpenCover, so be get an coverage.xml report
