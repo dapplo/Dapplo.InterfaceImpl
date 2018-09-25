@@ -210,3 +210,19 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+
+# Cake tools
+tools/*
+!tools/packages.config
+
+# DocFX
+_site/
+/**/DROP/
+/**/TEMP/
+doc/api/**/*.yml
+doc/api/.manifest
+
+# Coverage
+CoverageReport
+coverage.xml
+xunit.xml
