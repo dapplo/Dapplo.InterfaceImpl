@@ -36,7 +36,7 @@ namespace Dapplo.InterfaceImpl.Extensions.Implementation
 	[Extension(typeof (IHasChanges))]
 	internal class HasChangesExtension : AbstractInterceptorExtension
 	{
-		// This boolean has the value true if we have changes sind the last "reset"
+		// This boolean has the value true if we have changes since the last "reset"
 		private readonly ISet<string> _changedValues = new HashSet<string>(new AbcComparer());
 
 		/// <summary>
